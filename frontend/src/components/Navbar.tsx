@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GoContainer, GoHome, GoPackage, GoPencil, GoPerson } from "react-icons/go";
+import { GoContainer, GoHome, GoPackage, GoPencil, GoPerson, GoPulse, GoTag } from "react-icons/go";
 import '../styles/Navbar.css';
 
 export default function Navbar() {
@@ -25,6 +25,14 @@ export default function Navbar() {
                 <div className="nav-item">
                     <GoPackage size={20} color="#181818" />
                     <Link to="/products">Products</Link>
+                </div>
+                <div className="nav-item">
+                    <GoTag size={20} color="#181818" />
+                    <Link to="/orders">Orders</Link>
+                </div>
+                <div className="nav-item">
+                    <GoPulse size={20} color="#181818" />
+                    <Link to="/status">Status</Link>
                 </div>
             </nav>
         </div>

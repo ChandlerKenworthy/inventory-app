@@ -5,7 +5,7 @@ export default function HomePage() {
         <div className='page-container'>
             <Navbar />
             <div className='content-container'>
-                <h3>Home Page</h3>
+                <h1 className="page-title">Home</h1>
             </div>
         </div>
     )
