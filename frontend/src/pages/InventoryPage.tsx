@@ -2,14 +2,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import "../styles/Page.css";
-
-type InventoryItem = {
-  product_id: number,
-  quantity: number
-  aisle: number
-  shelf: number
-  bin: number
-}
+import type { InventoryItem } from "../types/Inventory";
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -28,7 +21,7 @@ export default function InventoryPage() {
     <div className="page-container">
     	<Navbar />
         <div className="content-container">
-        	<h1>Inventory</h1>
+        	<h1 className="page-title">Inventory</h1>
 			{inventory.map((item: InventoryItem) => (
 				<div key={item.product_id}>
 				{item.product_id} - {item.quantity}

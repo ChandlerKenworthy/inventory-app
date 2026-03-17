@@ -1,6 +1,7 @@
 use axum::{
     extract::State,
     Json,
+    http::StatusCode
 };
 use std::sync::Arc;
 use sqlx::Row;
@@ -31,9 +32,12 @@ pub async fn update_inventory(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateInventoryItem>
 ) -> Json<String> {
-    sqlx::query(
+    let result = sqlx::query(
         r#"INSERT INTO inventory (product_id, quantity, aisle, shelf, bin)
             VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(product_id)
+            DO UPDATE SET
+            quantity = inventory.quantity + excluded.quantity
         "#
     )
     .bind(payload.product_id as i64)
@@ -42,7 +46,11 @@ pub async fn update_inventory(
     .bind(payload.shelf as i64)
     .bind(payload.bin as i64)
     .execute(&state.db)
-    .await.unwrap();
+    
+    match result {
+        Ok(_) => Ok(Json("Item added".to_string())),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 
     Json("Item added".to_string())
 }
