@@ -1,0 +1,33 @@
+.nav-wrapper {
+    background: #F3F5F7;
+    height: 100vh;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 15px 20px;
+}
+
+.nav-menu .nav-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 5px 0;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #181818;
+    font-size: 18px;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover {
+    color: #007BFF;
+}
