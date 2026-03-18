@@ -31,7 +31,7 @@ pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<Inven
 pub async fn update_inventory(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateInventoryItem>
-) -> Json<String> {
+) -> Result<Json<String>, StatusCode> {
     let result = sqlx::query(
         r#"INSERT INTO inventory (product_id, quantity, aisle, shelf, bin)
             VALUES (?, ?, ?, ?, ?)
@@ -45,13 +45,11 @@ pub async fn update_inventory(
     .bind(payload.aisle as i64)
     .bind(payload.shelf as i64)
     .bind(payload.bin as i64)
-    .execute(&state.db)
+    .execute(&state.db);
     
-    match result {
+    match result.await {
         Ok(_) => Ok(Json("Item added".to_string())),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
-
-    Json("Item added".to_string())
 }
 

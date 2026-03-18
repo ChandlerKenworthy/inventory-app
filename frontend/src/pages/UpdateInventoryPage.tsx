@@ -1,6 +1,6 @@
 import Navbar from "../components/Navbar";
 import { useState } from "react";
-import type { InventoryItem } from "../types/Inventory";
+import type { InventoryItem } from "../Types";
 import "../styles/Page.css";
 import "../styles/UpdateInventoryForm.css";
 

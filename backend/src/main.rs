@@ -34,13 +34,28 @@ async fn main() {
     .await
     .unwrap();
 
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS customers (
+            id INTEGER PRIMARY KEY,
+            first_name TEXT NOT NULL,
+            second_name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            is_new_customer INTEGER NOT NULL DEFAULT 1
+        );
+        "#
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
     let state = Arc::new(AppState { db: pool });
 
     let app = Router::new()
         .route("/api/inventory", get(api::inventory_routes::get_inventory))
         .route("/api/inventory", post(api::inventory_routes::update_inventory))
-        //.route("/api/orders", post(api::order_routes::create_order))
-        //.route("/api/customers", get(api::customer_routes::get_customers))
+        .route("/api/customers", get(api::customer_routes::get_customers))
+        .route("/api/customers", post(api::customer_routes::update_customers))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import "../styles/Page.css";
-import type { InventoryItem } from "../types/Inventory";
+import type { InventoryItem } from "../Types";
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -22,11 +22,11 @@ export default function InventoryPage() {
     	<Navbar />
         <div className="content-container">
         	<h1 className="page-title">Inventory</h1>
-			{inventory.map((item: InventoryItem) => (
-				<div key={item.product_id}>
-				{item.product_id} - {item.quantity}
-				</div>
-			))}
+            {inventory.map((item: InventoryItem) => (
+              <div key={item.product_id}>
+              {item.product_id} - {item.quantity}
+              </div>
+            ))} 
         </div>
     </div>
   );
