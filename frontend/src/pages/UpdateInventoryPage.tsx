@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { InventoryItem } from "../Types";
 import "../styles/Page.css";
 import "../styles/UpdateInventoryForm.css";
+import TextInput from "../components/forms/TextInput";
 
 export default function UpdateInventoryPage() {
 	const [product, setProduct] = useState<InventoryItem>({
@@ -46,27 +47,11 @@ export default function UpdateInventoryPage() {
 			<div className="content-container">
 				<h1 className="page-title">Update Inventory</h1>
 				<form onSubmit={handleSubmit}>
-					<div>
-						<label htmlFor="product_id">Product ID:</label>
-						<input name="product_id" placeholder="Product ID" value={product.product_id} onChange={handleChange} />
-					</div>
-					<div>
-						<label htmlFor="quantity">Quantity:</label>
-						<input name="quantity" placeholder="Quantity" value={product.quantity} onChange={handleChange} />
-					</div>
-					<div>
-						<label htmlFor="aisle">Aisle:</label>
-						<input name="aisle" placeholder="Aisle" value={product.aisle} onChange={handleChange} />
-					</div>
-					<div>
-						<label htmlFor="shelf">Shelf:</label>
-						<input name="shelf" placeholder="Shelf" value={product.shelf} onChange={handleChange} />
-					</div>
-					<div>
-						<label htmlFor="bin">Bin:</label>
-						<input name="bin" placeholder="Bin" value={product.bin} onChange={handleChange} />
-					</div>
-
+					<TextInput label="product_id" description="Product ID" value={product.product_id} onChange={handleChange} />
+					<TextInput label="quantity" description="Quantity" value={product.quantity} onChange={handleChange} />
+					<TextInput label="aisle" description="Aisle" value={product.aisle} onChange={handleChange} />
+					<TextInput label="shelf" description="Shelf" value={product.shelf} onChange={handleChange} />
+					<TextInput label="bin" description="Bin" value={product.bin} onChange={handleChange} />
 					<button type="submit">Update Inventory</button>
 				</form>
 			</div>

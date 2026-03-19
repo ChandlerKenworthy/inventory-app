@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import { DefaultCustomer, type CustomerItem } from "../Types";
 import "../styles/CustomersPage.css";
 import CustomerCard from "../components/CustomerCard";
+import TextInput from "../components/forms/TextInput";
 
 export default function CustomersPage() {
     const [customers, setCustomers] = useState<CustomerItem[]>([]);
@@ -59,22 +60,10 @@ export default function CustomersPage() {
                         ))}
                     </div>
                     <form className="customer-form" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="id">Customer ID:</label>
-                            <input name="id" placeholder="Customer ID" value={customer.id} onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="first_name">First Name:</label>
-                            <input name="first_name" placeholder="First Name" value={customer.first_name} onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="second_name">Second Name:</label>
-                            <input name="second_name" placeholder="Second Name" value={customer.second_name} onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="email">Email:</label>
-                            <input name="email" placeholder="Email" value={customer.email} onChange={handleChange} />
-                        </div>
+                        <TextInput label="id" description="Customer ID" value={customer.id} onChange={handleChange} />
+                        <TextInput label="first_name" description="First Name" value={customer.first_name} onChange={handleChange} />
+                        <TextInput label="second_name" description="Second Name" value={customer.second_name} onChange={handleChange} />
+                        <TextInput label="email" description="Email" value={customer.email} onChange={handleChange} />
                         <button type="submit">Update Customers</button>
                     </form>
                 </div>
