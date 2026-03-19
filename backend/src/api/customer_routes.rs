@@ -44,9 +44,9 @@ pub async fn update_customers(
         "#
     )
     .bind(payload.id as i64)
-    .bind(&payload.first_name as String)
-    .bind(&payload.second_name as String)
-    .bind(&payload.email as String)
+    .bind(payload.first_name as String)
+    .bind(payload.second_name as String)
+    .bind(payload.email as String)
     .bind(payload.is_new_customer as bool)
     .execute(&state.db);
 

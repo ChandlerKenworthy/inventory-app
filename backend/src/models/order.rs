@@ -19,7 +19,7 @@ pub struct OrderItem {
     pub quantity: u32,
 }
 
-enum OrderStatus {
+pub enum OrderStatus {
     Received,
     Processing,
     Dispatched,

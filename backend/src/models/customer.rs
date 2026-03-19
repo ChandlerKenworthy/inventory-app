@@ -16,12 +16,3 @@ pub struct Customer {
     pub id: u64, // unique customer ID
     pub is_new_customer: bool, // is this the customer's first order
 }
-
-#[derive(Serialize, Clone)]
-pub struct CustomerResponseItem {
-    pub first_name: String,
-    pub second_name: String,
-    pub email: String,
-    pub id: CustomerId,
-    // no "is_new_customer" field here, bit pointless
-}

@@ -1,5 +1,5 @@
 use axum::{Router, routing::get, routing::post};
-use std::{sync::Arc, collections::HashMap};
+use std::{sync::Arc};
 use sqlx::sqlite::SqlitePool;
 
 mod models;
@@ -7,10 +7,7 @@ mod api;
 mod state;
 
 use state::AppState;
-use models::inventory::Inventory;
-use models::inventory::{InventoryItem, WarehouseLocation};
 use models::product::ProductId;
-use models::customer::{CustomerId, Customer, CustomerList};
 
 #[tokio::main]
 async fn main() {
