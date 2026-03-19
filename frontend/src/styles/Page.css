@@ -1,9 +1,11 @@
 .page-container {
     display: flex;
+    width: 100%;
 }
 
 .content-container {
     padding: 20px;
+    width: 100%;
 }
 
 .page-title {

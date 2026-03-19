@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { DefaultCustomer, type CustomerItem } from "../Types";
+import "../styles/CustomersPage.css";
+import CustomerCard from "../components/CustomerCard";
 
 export default function CustomersPage() {
     const [customers, setCustomers] = useState<CustomerItem[]>([]);
@@ -50,32 +52,32 @@ export default function CustomersPage() {
             <Navbar />
             <div className="content-container">
                 <h1 className="page-title">Customers</h1>
-                <div>
-                    {customers.map((customer: CustomerItem) => (
-                        <div key={customer.id}>
-                            {customer.id} - {customer.first_name} {customer.second_name} - {customer.email}
+                <div className="content-wrapper">
+                    <div className="customers-wrapper">
+                        {customers.map((customer: CustomerItem) => (
+                            <CustomerCard customer={customer} key={customer.id} />
+                        ))}
+                    </div>
+                    <form className="customer-form" onSubmit={handleSubmit}>
+                        <div>
+                            <label htmlFor="id">Customer ID:</label>
+                            <input name="id" placeholder="Customer ID" value={customer.id} onChange={handleChange} />
                         </div>
-                    ))}
+                        <div>
+                            <label htmlFor="first_name">First Name:</label>
+                            <input name="first_name" placeholder="First Name" value={customer.first_name} onChange={handleChange} />
+                        </div>
+                        <div>
+                            <label htmlFor="second_name">Second Name:</label>
+                            <input name="second_name" placeholder="Second Name" value={customer.second_name} onChange={handleChange} />
+                        </div>
+                        <div>
+                            <label htmlFor="email">Email:</label>
+                            <input name="email" placeholder="Email" value={customer.email} onChange={handleChange} />
+                        </div>
+                        <button type="submit">Update Customers</button>
+                    </form>
                 </div>
-                <form onSubmit={handleSubmit}>
-					<div>
-						<label htmlFor="id">Customer ID:</label>
-						<input name="id" placeholder="Customer ID" value={customer.id} onChange={handleChange} />
-					</div>
-                    <div>
-						<label htmlFor="first_name">First Name:</label>
-						<input name="first_name" placeholder="First Name" value={customer.first_name} onChange={handleChange} />
-					</div>
-					<div>
-						<label htmlFor="second_name">Second Name:</label>
-						<input name="second_name" placeholder="Second Name" value={customer.second_name} onChange={handleChange} />
-					</div>
-					<div>
-						<label htmlFor="email">Email:</label>
-						<input name="email" placeholder="Email" value={customer.email} onChange={handleChange} />
-					</div>
-					<button type="submit">Update Customers</button>
-				</form>
             </div>
         </div>
     )
