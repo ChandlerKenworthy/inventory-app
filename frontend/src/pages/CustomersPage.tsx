@@ -4,6 +4,7 @@ import { DefaultCustomer, type CustomerItem } from "../Types";
 import "../styles/CustomersPage.css";
 import CustomerCard from "../components/CustomerCard";
 import TextInput from "../components/forms/TextInput";
+import NumberInput from "../components/forms/NumberInput";
 
 export default function CustomersPage() {
     const [customers, setCustomers] = useState<CustomerItem[]>([]);
@@ -60,10 +61,10 @@ export default function CustomersPage() {
                         ))}
                     </div>
                     <form className="customer-form" onSubmit={handleSubmit}>
-                        <TextInput label="id" description="Customer ID" value={customer.id} onChange={handleChange} />
+                        <NumberInput label="id" description="Customer ID" value={customer.id} onChange={handleChange} min={1} max={999999999} />
                         <TextInput label="first_name" description="First Name" value={customer.first_name} onChange={handleChange} />
                         <TextInput label="second_name" description="Second Name" value={customer.second_name} onChange={handleChange} />
-                        <TextInput label="email" description="Email" value={customer.email} onChange={handleChange} />
+                        <TextInput label="email" description="Email" value={customer.email} onChange={handleChange} input_type="email" />
                         <button type="submit">Update Customers</button>
                     </form>
                 </div>

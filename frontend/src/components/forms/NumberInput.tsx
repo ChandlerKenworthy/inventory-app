@@ -1,20 +1,24 @@
-interface TextInputProps {
+interface NumberInputProps {
     label: string;
     description: string;
-    value: string | number;
+    value: number;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     is_required?: boolean;
     input_type?: string;
+    min?: number;
+    max?: number;
 }
 
-export default function TextInput({
+export default function NumberInput({
     label,
     description,
     value,
     onChange,
     is_required = true,
-    input_type = "text" // or "email", etc.
-}: TextInputProps) {
+    input_type = "number",
+    min=0,
+    max=Infinity
+}: NumberInputProps) {
     return (
         <div>
             <label htmlFor={label}>{description}:</label>
@@ -25,6 +29,8 @@ export default function TextInput({
                 onChange={onChange}
                 type={input_type}
                 required={is_required}
+                min={min}
+                max={max}
             />
         </div>
     )
