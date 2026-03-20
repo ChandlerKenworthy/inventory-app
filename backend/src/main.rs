@@ -37,8 +37,7 @@ async fn main() {
             id INTEGER PRIMARY KEY,
             first_name TEXT NOT NULL,
             second_name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            is_new_customer INTEGER NOT NULL DEFAULT 1
+            email TEXT NOT NULL
         );
         "#
     )

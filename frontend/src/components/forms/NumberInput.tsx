@@ -1,23 +1,22 @@
 interface NumberInputProps {
     label: string;
     description: string;
-    value: number;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     is_required?: boolean;
     input_type?: string;
     min?: number;
     max?: number;
+    error?: string; // Zod error message for this field
 }
 
 export default function NumberInput({
     label,
     description,
-    value,
-    onChange,
     is_required = true,
     input_type = "number",
     min=0,
-    max=Infinity
+    max=Infinity,
+    error,
+    ...rest // catches name, ref, onChange, onBlur from register()
 }: NumberInputProps) {
     return (
         <div>
@@ -25,13 +24,19 @@ export default function NumberInput({
             <input 
                 name={label} 
                 placeholder={description} 
-                value={value} 
-                onChange={onChange}
                 type={input_type}
                 required={is_required}
                 min={min}
                 max={max}
+                aria-invalid={!!error}
+                aria-describedby={error ? `${label}-error` : undefined}
+                {...rest}
             />
+            {error && (
+                <span id={`${label}-error`} className="error">
+                    {error}
+                </span>
+            )}
         </div>
     )
 }

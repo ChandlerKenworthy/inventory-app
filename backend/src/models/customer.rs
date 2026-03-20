@@ -14,5 +14,4 @@ pub struct Customer {
     pub second_name: String, // second name of the customer e.g. "Smith"
     pub email: String,
     pub id: u64, // unique customer ID
-    pub is_new_customer: bool, // is this the customer's first order
 }
