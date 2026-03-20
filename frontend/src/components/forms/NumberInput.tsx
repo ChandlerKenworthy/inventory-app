@@ -3,8 +3,6 @@ interface NumberInputProps {
     description: string;
     is_required?: boolean;
     input_type?: string;
-    min?: number;
-    max?: number;
     error?: string; // Zod error message for this field
 }
 
@@ -13,8 +11,6 @@ export default function NumberInput({
     description,
     is_required = true,
     input_type = "number",
-    min=0,
-    max=Infinity,
     error,
     ...rest // catches name, ref, onChange, onBlur from register()
 }: NumberInputProps) {
@@ -26,8 +22,6 @@ export default function NumberInput({
                 placeholder={description} 
                 type={input_type}
                 required={is_required}
-                min={min}
-                max={max}
                 aria-invalid={!!error}
                 aria-describedby={error ? `${label}-error` : undefined}
                 {...rest}

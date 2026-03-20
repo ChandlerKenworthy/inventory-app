@@ -1,15 +1,14 @@
 
 import Navbar from "../components/Navbar";
-import type CustomerItem from "../Types";
+import { useState, useEffect } from "react";
+import type { CustomerItem } from "../Types";
 import CustomerCard from "../components/CustomerCard";
 import TextInput from "../components/forms/TextInput";
 import NumberInput from "../components/forms/NumberInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import schema, { type NewCustomerFormData } from "../schema/schema";
+import CustomerSchema, { type NewCustomerFormData } from "../schema/CustomerSchema";
 import "../styles/CustomersPage.css";
-
-import { useState, useEffect } from "react";
 
 interface CustomerFormProps {
   onSuccess: () => void; // tells the parent to re-fetch after submit
@@ -22,7 +21,7 @@ export function CustomerForm({ onSuccess }: CustomerFormProps) {
     reset,
     formState: { errors },
   } = useForm<NewCustomerFormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(CustomerSchema),
     mode: "onChange",
     defaultValues: {
       id: 0,
@@ -34,7 +33,6 @@ export function CustomerForm({ onSuccess }: CustomerFormProps) {
 
   // passed into RHF's handleSubmit()
   const onSubmit = async (data: NewCustomerFormData) => {
-    console.log("Sending customer data:", JSON.stringify(data));
     await fetch("/api/customers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

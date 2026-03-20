@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-const schema = z.object({
+// For the form for adding a new customer
+const CustomerSchema = z.object({
     email: z
         .email("Must be a valid email address")
         .min(6, "Email must be at least 6 characters long")
@@ -18,5 +19,5 @@ const schema = z.object({
     id: z.coerce.number().min(1, "Must be at least 1"),
 });
 
-export type NewCustomerFormData = z.infer<typeof schema>; // TypeScript type auto-generated
-export default schema;
+export type NewCustomerFormData = z.infer<typeof CustomerSchema>;
+export default CustomerSchema;

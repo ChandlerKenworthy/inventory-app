@@ -1,59 +1,89 @@
 import Navbar from "../components/Navbar";
 import { useState } from "react";
 import type { InventoryItem } from "../Types";
+import NumberInput from "../components/forms/NumberInput";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import InventoryItemSchema, { type NewInventoryItemFormData } from "../schema/InventoryItemSchema";
 import "../styles/Page.css";
 import "../styles/UpdateInventoryForm.css";
-import NumberInput from "../components/forms/NumberInput";
 
-export default function UpdateInventoryPage() {
-	const [product, setProduct] = useState<InventoryItem>({
-		product_id: 0,
-		quantity: 0,
-		aisle: 0,
-		shelf: 0,
-		bin: 0
-	});
+interface InventoryFormProps {
+	onSuccess: () => void;
+}
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setProduct({
-			...product,
-			[e.target.name]: Number(e.target.value)
-		});
-	};
-
-	async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-		e.preventDefault();
-
-		await fetch("/api/inventory", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(product)
-		});
-
-		setProduct({
+export function InventoryForm({ onSuccess }: InventoryFormProps) {
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm<NewInventoryItemFormData>({
+		resolver: zodResolver(InventoryItemSchema),
+		mode: "onChange",
+		defaultValues: {
 			product_id: 0,
 			quantity: 0,
 			aisle: 0,
 			shelf: 0,
 			bin: 0
-		});
-	}
+		},
+	});
 
+	const onSubmit = async (data: NewInventoryItemFormData) => {
+		await fetch("/api/inventory", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(data)
+		});
+		reset();
+		onSuccess();
+	};
+
+	return (
+		<form className="inventory-form" onSubmit={handleSubmit(onSubmit)}>
+			<NumberInput 
+				label="product_id" 
+				description="Product ID" 
+				error={errors.product_id?.message}
+				{...register("product_id")} 
+			/>
+			<NumberInput 
+				label="quantity" 
+				description="Quantity" 
+				error={errors.quantity?.message}
+				{...register("quantity")} 
+			/>
+			<NumberInput 
+				label="aisle" 
+				description="Aisle" 
+				error={errors.aisle?.message}
+				{...register("aisle")} 
+			/>
+			<NumberInput 
+				label="shelf" 
+				description="Shelf" 
+				error={errors.shelf?.message}
+				{...register("shelf")} 
+			/>
+			<NumberInput 
+				label="bin" 
+				description="Bin" 
+				error={errors.bin?.message}
+				{...register("bin")} 
+			/>
+			<button type="submit">Update Inventory</button>
+		</form>
+	);
+}
+
+export default function UpdateInventoryPage() {
 	return (
 		<div className="page-container">
 			<Navbar />
 			<div className="content-container">
 				<h1 className="page-title">Update Inventory</h1>
-				<form onSubmit={handleSubmit}>
-					<NumberInput label="product_id" description="Product ID" value={product.product_id} onChange={handleChange} min={1}/>
-					<NumberInput label="quantity" description="Quantity" value={product.quantity} onChange={handleChange} min={0} />
-					<NumberInput label="aisle" description="Aisle" value={product.aisle} onChange={handleChange} min={1} max={999} />
-					<NumberInput label="shelf" description="Shelf" value={product.shelf} onChange={handleChange} min={1} max={999} />
-					<NumberInput label="bin" description="Bin" value={product.bin} onChange={handleChange} min={1} max={10} />
-					<button type="submit">Update Inventory</button>
-				</form>
+				<InventoryForm onSuccess={() => {}} />
 			</div>
 		</div>
 	);
