@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import type { InventoryItem } from "../Types";
 import InventoryItemRow from "../components/InventoryItemRow";
 import { GoFilter, GoSortAsc, GoSortDesc } from "react-icons/go";
-import "../styles/Page.css";
+import "../styles/pages/Page.css";
 import "../styles/pages/InventoryPage.css";
 
 export default function InventoryPage() {

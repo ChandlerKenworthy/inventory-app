@@ -1,6 +1,7 @@
 import Navbar from "../components/Navbar";
 import { StatusBadge } from "../components/StatusBage";
 import { useHealthCheck } from "../hooks/HealthCheck";
+import "../styles/pages/Page.css";
 import "../styles/pages/StatusPage.css";
 
 export default function StatusPage() {

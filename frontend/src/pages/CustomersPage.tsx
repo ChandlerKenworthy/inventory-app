@@ -8,7 +8,7 @@ import NumberInput from "../components/forms/NumberInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomerSchema, { type NewCustomerFormData } from "../schema/CustomerSchema";
-import "../styles/CustomersPage.css";
+import "../styles/pages/CustomersPage.css";
 
 interface CustomerFormProps {
   onSuccess: () => void; // tells the parent to re-fetch after submit

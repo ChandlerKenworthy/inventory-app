@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { GoContainer, GoHome, GoPackage, GoPencil, GoPerson, GoPulse, GoTag } from "react-icons/go";
-import '../styles/Navbar.css';
+import '../styles/components/Navbar.css';
 
 const links = [
   { to: "/",                 label: "Home",      Icon: GoHome      },

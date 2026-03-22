@@ -3,7 +3,7 @@ import NumberInput from "../components/forms/NumberInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InventoryItemSchema, { type NewInventoryItemFormData } from "../schema/InventoryItemSchema";
-import "../styles/Page.css";
+import "../styles/pages/Page.css";
 import "../styles/UpdateInventoryForm.css";
 
 interface InventoryFormProps {

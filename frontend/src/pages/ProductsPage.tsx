@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar";
-import "../styles/ProductsPage.css"
+import "../styles/pages/Page.css";
+import "../styles/pages/ProductsPage.css"
 
 export default function ProductsPage() {
     return (
