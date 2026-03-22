@@ -7,7 +7,6 @@ mod api;
 mod state;
 
 use state::AppState;
-use models::product::ProductId;
 
 #[tokio::main]
 async fn main() {
@@ -52,6 +51,7 @@ async fn main() {
         .route("/api/inventory", post(api::inventory_routes::update_inventory))
         .route("/api/customers", get(api::customer_routes::get_customers))
         .route("/api/customers", post(api::customer_routes::update_customers))
+        .route("/api/health", get(api::status_routes::get_status))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
