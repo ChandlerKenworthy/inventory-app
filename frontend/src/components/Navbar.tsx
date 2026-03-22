@@ -1,40 +1,37 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { GoContainer, GoHome, GoPackage, GoPencil, GoPerson, GoPulse, GoTag } from "react-icons/go";
 import '../styles/Navbar.css';
 
+const links = [
+  { to: "/",                 label: "Home",      Icon: GoHome      },
+  { to: "/inventory",        label: "Inventory", Icon: GoContainer },
+  { to: "/update-inventory", label: "Modify",    Icon: GoPencil    },
+  { to: "/customers",        label: "Customers", Icon: GoPerson    },
+  { to: "/products",         label: "Products",  Icon: GoPackage   },
+  { to: "/orders",           label: "Orders",    Icon: GoTag       },
+  { to: "/status",           label: "Status",    Icon: GoPulse     },
+];
+
 export default function Navbar() {
-    return (
-        <div className="nav-wrapper">
-            <nav className="nav-menu">
-                <div className="nav-item">
-                    <GoHome size={20} color="#181818" />
-                    <Link to="/">Home</Link>
-                </div>
-                <div className="nav-item">
-                    <GoContainer size={20} color="#181818" />
-                    <Link to="/inventory">Inventory</Link>
-                </div>
-                <div className="nav-item">
-                    <GoPencil size={20} color="#181818" />
-                    <Link to="/update-inventory">Modify</Link>
-                </div>
-                <div className="nav-item">
-                    <GoPerson size={20} color="#181818" />
-                    <Link to="/customers">Customers</Link>
-                </div>
-                <div className="nav-item">
-                    <GoPackage size={20} color="#181818" />
-                    <Link to="/products">Products</Link>
-                </div>
-                <div className="nav-item">
-                    <GoTag size={20} color="#181818" />
-                    <Link to="/orders">Orders</Link>
-                </div>
-                <div className="nav-item">
-                    <GoPulse size={20} color="#181818" />
-                    <Link to="/status">Status</Link>
-                </div>
-            </nav>
-        </div>
-    )
+  return (
+    <div className="nav-wrapper">
+      <nav className="nav-menu">
+        {links.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/"}  // prevents "/" matching every route
+            className={({ isActive }) => `nav-item${isActive ? " nav-item--active" : ""}`}
+          >
+            {({ isActive }) => (
+              <>
+                <Icon size={20} />
+                <span>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+    </div>
+  );
 }

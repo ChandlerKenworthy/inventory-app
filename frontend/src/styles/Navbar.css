@@ -20,6 +20,10 @@
     padding: 10px 0;
 }
 
+.nav-menu .nav-item.nav-item--active {
+    color: rgb(127, 127, 127);
+}
+
 .nav-menu a {
     text-decoration: none;
     color: #181818;
@@ -28,6 +32,15 @@
     transition: color 0.3s ease;
 }
 
+.nav-menu .nav-item:hover {
+    color: rgb(34, 114, 189);
+}
+
+.nav-menu .nav-item.nav-item--active:hover {
+    color: rgb(127, 127, 127);
+    cursor: default;
+}
+
 .nav-menu a:hover {
-    color: #007BFF;
+    color: rgb(34, 114, 189);
 }
