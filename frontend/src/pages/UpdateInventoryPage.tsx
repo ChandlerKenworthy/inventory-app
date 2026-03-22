@@ -1,6 +1,4 @@
 import Navbar from "../components/Navbar";
-import { useState } from "react";
-import type { InventoryItem } from "../Types";
 import NumberInput from "../components/forms/NumberInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
