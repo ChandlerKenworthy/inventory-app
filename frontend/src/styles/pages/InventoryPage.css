@@ -1,0 +1,52 @@
+.inventory-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 1rem;
+}
+
+/* Header */
+.inventory-table-header {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.inventory-table-header span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+/* Wrapper */
+.inventory-list {
+  width: 100%;
+  overflow-x: auto; /* handles narrow screens */
+}
+
+.inventory-table {
+  min-width: 500px; /* prevents columns collapsing too small */
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+/* Filters */
+.filters-wrapper {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.filter-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}

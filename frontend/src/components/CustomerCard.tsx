@@ -1,5 +1,5 @@
 import type { CustomerItem } from "../Types";
-import '../styles/CustomerCard.css';
+import '../styles/components/CustomerCard.css';
 
 export default function CustomerCard({ customer }: { customer: CustomerItem }) {
     return (

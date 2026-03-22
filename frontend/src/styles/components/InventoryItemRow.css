@@ -1,0 +1,28 @@
+.inventory-table-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    transition: background-color 0.15s ease;
+}
+
+.inventory-table-row:last-child {
+    border-bottom: none;
+}
+
+.inventory-table-row:hover {
+    background-color: #f9fafb;
+}
+
+.inventory-table-row span {
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.modify-pencil {
+    cursor: pointer;
+}

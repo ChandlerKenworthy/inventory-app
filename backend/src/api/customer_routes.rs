@@ -11,7 +11,7 @@ use crate::state::AppState;
 pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<Customer>> {
 
     let rows = sqlx::query(
-        "SELECT id, first_name, second_name, email, is_new_customer FROM customers"
+        "SELECT id, first_name, second_name, email FROM customers"
     ).fetch_all(&state.db)
     .await.unwrap();
 
@@ -21,7 +21,6 @@ pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<Custo
             first_name: row.get("first_name"),
             second_name: row.get("second_name"),
             email: row.get("email"),
-            is_new_customer: row.get("is_new_customer"),
         }
     }).collect();
 
@@ -34,20 +33,18 @@ pub async fn update_customers(
 ) -> Result<Json<String>, StatusCode> {
     let result = sqlx::query(
         r#"
-        INSERT INTO customers (id, first_name, second_name, email, is_new_customer)
-            VALUES (?, ?, ?, ?, ?)
+        INSERT INTO customers (id, first_name, second_name, email)
+            VALUES (?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 first_name = EXCLUDED.first_name,
                 second_name = EXCLUDED.second_name,
-                email = EXCLUDED.email,
-                is_new_customer = EXCLUDED.is_new_customer
+                email = EXCLUDED.email
         "#
     )
     .bind(payload.id as i64)
     .bind(payload.first_name as String)
     .bind(payload.second_name as String)
     .bind(payload.email as String)
-    .bind(payload.is_new_customer as bool)
     .execute(&state.db);
 
     match result.await {

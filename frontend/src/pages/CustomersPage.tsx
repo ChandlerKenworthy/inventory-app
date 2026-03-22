@@ -1,84 +1,106 @@
-import { useEffect, useState } from "react";
+
 import Navbar from "../components/Navbar";
-import { DefaultCustomer, type CustomerItem } from "../Types";
-import "../styles/CustomersPage.css";
+import { useState, useEffect } from "react";
+import type { CustomerItem } from "../Types";
 import CustomerCard from "../components/CustomerCard";
+import TextInput from "../components/forms/TextInput";
+import NumberInput from "../components/forms/NumberInput";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import CustomerSchema, { type NewCustomerFormData } from "../schema/CustomerSchema";
+import "../styles/pages/CustomersPage.css";
+
+interface CustomerFormProps {
+  onSuccess: () => void; // tells the parent to re-fetch after submit
+}
+
+export function CustomerForm({ onSuccess }: CustomerFormProps) {
+  const {
+    register,
+    handleSubmit,        // RHF's handleSubmit — no longer clashes
+    reset,
+    formState: { errors },
+  } = useForm<NewCustomerFormData>({
+    resolver: zodResolver(CustomerSchema),
+    mode: "onChange",
+    defaultValues: {
+      id: 0,
+      first_name: "",
+      second_name: "",
+      email: "",
+    },
+  });
+
+  // passed into RHF's handleSubmit()
+  const onSubmit = async (data: NewCustomerFormData) => {
+    await fetch("/api/customers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    reset();         // clear the form back to defaultValues
+    onSuccess();     // trigger parent re-fetch
+  };
+
+  return (
+    <form className="customer-form" onSubmit={handleSubmit(onSubmit)}>
+      <NumberInput
+        label="id"
+        description="Customer ID"
+        error={errors.id?.message}
+        {...register("id")}
+      />
+      <TextInput
+        label="first_name"
+        description="First Name"
+        error={errors.first_name?.message}
+        {...register("first_name")}
+      />
+      <TextInput
+        label="second_name"
+        description="Second Name"
+        error={errors.second_name?.message}
+        {...register("second_name")}
+      />
+      <TextInput
+        label="email"
+        description="Email"
+        input_type="email"
+        error={errors.email?.message}
+        {...register("email")}
+      />
+      <button type="submit">Update Customer</button>
+    </form>
+  );
+}
 
 export default function CustomersPage() {
-    const [customers, setCustomers] = useState<CustomerItem[]>([]);
-    const [customer, setCustomer] = useState<CustomerItem>(DefaultCustomer);
+  const [customers, setCustomers] = useState<CustomerItem[]>([]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCustomer({
-            ...customer,
-            [e.target.name]: e.target.value
-        });
-    }
+  const fetchCustomers = async () => {
+    const res = await fetch("/api/customers");
+    const data = await res.json();
+    setCustomers(data);
+  };
 
-    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-        e.preventDefault();
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
-        const payload = {
-            ...customer,
-            id: Number(customer.id) // Ensure this is a number type, not "123"
-        };
-
-        console.log("Sending customer data:", JSON.stringify(payload));
-
-        await fetch("/api/customers", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        setCustomer(DefaultCustomer);
-        fetchCustomers();
-    }
-
-    const fetchCustomers = async () => {
-        const res = await fetch("/api/customers");
-        const data = await res.json();
-        setCustomers(data);
-    };
-
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
-
-    return (
-        <div className="page-container">
-            <Navbar />
-            <div className="content-container">
-                <h1 className="page-title">Customers</h1>
-                <div className="content-wrapper">
-                    <div className="customers-wrapper">
-                        {customers.map((customer: CustomerItem) => (
-                            <CustomerCard customer={customer} key={customer.id} />
-                        ))}
-                    </div>
-                    <form className="customer-form" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="id">Customer ID:</label>
-                            <input name="id" placeholder="Customer ID" value={customer.id} onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="first_name">First Name:</label>
-                            <input name="first_name" placeholder="First Name" value={customer.first_name} onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="second_name">Second Name:</label>
-                            <input name="second_name" placeholder="Second Name" value={customer.second_name} onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="email">Email:</label>
-                            <input name="email" placeholder="Email" value={customer.email} onChange={handleChange} />
-                        </div>
-                        <button type="submit">Update Customers</button>
-                    </form>
-                </div>
-            </div>
+  return (
+    <div className="page-container">
+      <Navbar />
+      <div className="content-container">
+        <h1 className="page-title">Customers</h1>
+        <div className="content-wrapper">
+          <div className="customers-wrapper">
+            {customers.map((customer: CustomerItem) => (
+              <CustomerCard customer={customer} key={customer.id} />
+            ))}
+          </div>
+          <CustomerForm onSuccess={fetchCustomers} />
         </div>
-    )
+      </div>
+    </div>
+  );
 }
