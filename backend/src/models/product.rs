@@ -16,3 +16,14 @@ pub struct Product {
     pub weight: f32, // weight in kg
     pub dimensions: Dimensions, // dimensions in mm
 }
+
+#[derive(Serialize, Clone)]
+pub struct ProductResponseItem {
+    pub name: String,
+    pub id: u64,
+    pub is_fragile: bool,
+    pub weight: f32,
+    pub width: f32,
+    pub height: f32,
+    pub depth: f32,
+}
