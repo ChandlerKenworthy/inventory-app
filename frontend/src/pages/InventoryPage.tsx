@@ -1,4 +1,3 @@
-// src/pages/InventoryPage.tsx
 import { useEffect, useState, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import type { InventoryItem } from "../Types";
@@ -109,6 +108,7 @@ export default function InventoryPage() {
                 <span>Shelf</span>
                 <span>Bin</span>
                 <span>Edit</span>
+                <span>Delete</span>
               </div>
               <div className="inventory-table-body">
                 {sortedInventory.map((item: InventoryItem) => (

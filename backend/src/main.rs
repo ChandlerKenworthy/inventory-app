@@ -1,4 +1,4 @@
-use axum::{Router, routing::get, routing::post};
+use axum::{Router, routing::get, routing::post, routing::delete};
 use std::{sync::Arc};
 use sqlx::sqlite::SqlitePool;
 
@@ -71,6 +71,7 @@ async fn main() {
         .route("/api/health", get(api::status_routes::get_status))
         .route("/api/products", get(api::product_routes::get_products))
         .route("/api/products", post(api::product_routes::add_product))
+        .route("/api/inventory/{id}", delete(api::inventory_routes::delete_inventory_item))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
