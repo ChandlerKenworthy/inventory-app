@@ -1,7 +1,8 @@
 use axum::{
     extract::State,
     Json,
-    http::StatusCode
+    http::StatusCode,
+    extract::Path,
 };
 use std::sync::Arc;
 use sqlx::Row;
@@ -54,6 +55,30 @@ pub async fn add_product(
     
     match result.await {
         Ok(_) => Ok(Json("Product added".to_string())),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
+pub async fn delete_product(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>
+) -> Result<StatusCode, StatusCode> {
+    let result = sqlx::query(
+        r#"
+        DELETE FROM products
+        WHERE id = ?
+        "#
+    )
+    .bind(id as i64)
+    .execute(&state.db);
+    
+    match result.await {
+        Ok(res) => { // Check if any rows were actually deleted
+            if res.rows_affected() == 0 {
+                return Err(StatusCode::NOT_FOUND);
+            }
+            Ok(StatusCode::OK)
+        }
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }

@@ -15,7 +15,16 @@ export default function ProductsPage() {
         setProducts(data);
     }
 
-    const deleteProductHandler = () => console.log("Delete product");
+    const deleteProductHandler = async (id: number) => {
+        const response = await fetch(`/api/products/${id}`, {
+            method: 'DELETE',
+        });
+        if(!response.ok) {
+            console.error('Failed to delete product from catalogue');
+        } else {
+            console.log('Product removed successfully');
+        }
+    }
 
     useEffect(() => {
         fetchProducts();
