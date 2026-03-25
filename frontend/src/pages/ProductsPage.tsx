@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import "../styles/pages/Page.css";
 import "../styles/pages/ProductsPage.css"
 import AddNewProduct from "../components/forms/AddNewProduct";
+import ProductItemRow from "../components/ProductItemRow";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductResponseItem[]>([]);
@@ -14,6 +15,8 @@ export default function ProductsPage() {
         setProducts(data);
     }
 
+    const deleteProductHandler = () => console.log("Delete product");
+
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -22,23 +25,30 @@ export default function ProductsPage() {
         <div className="page-container">
             <Navbar />
             <div className="content-container">
-                <h1 className="page-title">Products</h1>
-                <div className="form-content-wrapper">
-                    <div className="new-product-form">
-                        <AddNewProduct onSuccess={() => fetchProducts()} />
-                    </div>
-                    <div className="products-wrapper">
-                        {products.length === 0 && <p>No products found, consider checking the database connection via the status page.</p>}
+                <h1 className="page-title">Product Catalogue</h1>
+                <div className="content-wrapper">
+                    <AddNewProduct onSuccess={() => fetchProducts()} />
+                    <div className="products-list">
+                        <div className="products-table-header">
+                            <span>Product ID</span>
+                            <span>Name</span>
+                            <span>Weight (kg)</span>
+                            <span>Dim. (W/H/D) (cm)</span>
+                            <span>Is Fragile</span>
+                            <span>Add</span>
+                            <span>Modify</span>
+                            <span>Delete</span>
+                        </div>
+                        <div className="products-table-body">
                         {products.map((product: ProductResponseItem) => (
-                            <div key={product.id} className="product-tile">
-                                <h4>{product.name}</h4>
-                                <span className="product-id">ID: {product.id}</span>
-                                <span>{product.width} x {product.height} x {product.depth}</span>
-                                <span>{product.weight} kg</span>
-                                <span>{product.is_fragile ? "Fragile" : "Not Fragile"}</span>
-                            </div>
+                            <ProductItemRow 
+                                key={product.id} 
+                                product={product} 
+                                deleteProductHandler={deleteProductHandler} 
+                            />
                         ))}
-                    </div>
+                        </div>
+                    </div>  
                 </div>
             </div>
         </div>

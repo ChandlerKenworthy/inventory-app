@@ -13,7 +13,6 @@ export default function InventoryItemRow({ item }: { item: InventoryItem }) {
             console.log('Item deleted successfully');
         }
         // TODO: Update UI or show a success message or something?
-
     }
 
     return (

@@ -10,3 +10,10 @@
     color: rgb(34, 114, 189);
     outline-color: rgb(34, 114, 189);
 }
+
+.add-product-form {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+}

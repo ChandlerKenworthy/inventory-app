@@ -41,7 +41,7 @@ export default function AddNewProduct({ onSuccess }: AddNewProductProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="add-product-form">
             <TextInput
                 label="name"
                 description="Product Name"
@@ -90,7 +90,7 @@ export default function AddNewProduct({ onSuccess }: AddNewProductProps) {
             />
             <button className="add-product-btn" type="submit">
                 <GoPlusCircle />
-                Add Product Form
+                Add Product
             </button>
         </form>
     );
