@@ -1,0 +1,12 @@
+/* Form for adding a new product */
+.add-product-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.add-product-btn:hover {
+    color: rgb(34, 114, 189);
+    outline-color: rgb(34, 114, 189);
+}

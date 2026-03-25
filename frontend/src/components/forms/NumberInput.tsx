@@ -22,6 +22,7 @@ export default function NumberInput({
                 placeholder={description} 
                 type={input_type}
                 required={is_required}
+                step="any"
                 aria-invalid={!!error}
                 aria-describedby={error ? `${label}-error` : undefined}
                 {...rest}

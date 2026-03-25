@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import type { ProductResponseItem } from "../Types";
-import { GoPlusCircle } from "react-icons/go";
 import Navbar from "../components/Navbar";
 import "../styles/pages/Page.css";
 import "../styles/pages/ProductsPage.css"
+import AddNewProduct from "../components/forms/AddNewProduct";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductResponseItem[]>([]);
@@ -23,25 +23,23 @@ export default function ProductsPage() {
             <Navbar />
             <div className="content-container">
                 <h1 className="page-title">Products</h1>
-                <button className="add-product-btn">
-                    <GoPlusCircle />
-                    Add Product
-                </button>
-
-
-                <div className="products-wrapper">
-                    {products.length === 0 && <p>No products found, consider checking the database connection via the status page.</p>}
-                    {products.map((product: ProductResponseItem) => (
-                        <div key={product.id} className="product-tile">
-                            <h4>{product.name}</h4>
-                            <span className="product-id">ID: {product.id}</span>
-                            <span>{product.width} x {product.height} x {product.depth}</span>
-                            <span>{product.weight} kg</span>
-                            <span>{product.is_fragile ? "Fragile" : "Not Fragile"}</span>
-                        </div>
-                    ))}
+                <div className="form-content-wrapper">
+                    <div className="new-product-form">
+                        <AddNewProduct onSuccess={() => fetchProducts()} />
+                    </div>
+                    <div className="products-wrapper">
+                        {products.length === 0 && <p>No products found, consider checking the database connection via the status page.</p>}
+                        {products.map((product: ProductResponseItem) => (
+                            <div key={product.id} className="product-tile">
+                                <h4>{product.name}</h4>
+                                <span className="product-id">ID: {product.id}</span>
+                                <span>{product.width} x {product.height} x {product.depth}</span>
+                                <span>{product.weight} kg</span>
+                                <span>{product.is_fragile ? "Fragile" : "Not Fragile"}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-
             </div>
         </div>
     );

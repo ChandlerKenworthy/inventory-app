@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Eq, PartialEq, Hash, Clone)]
 pub struct ProductId(pub u64);
@@ -17,7 +17,7 @@ pub struct Product {
     pub dimensions: Dimensions, // dimensions in mm
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct ProductResponseItem {
     pub name: String,
     pub id: u64,
