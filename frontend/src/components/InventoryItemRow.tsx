@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { InventoryItem } from "../Types";
-import "../styles/components/InventoryItemRow.css";
 import { GoPencil, GoTrash, GoCheckCircle, GoX } from "react-icons/go";
 import TableNumberInput from "./forms/TableNumberInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InventoryItemSchema, { type NewInventoryItemFormData } from "../schema/InventoryItemSchema";
+import "../styles/components/InventoryItemRow.css";
 
 export default function InventoryItemRow(
     { item, deleteItemHandler, onUpdateSuccess } : 

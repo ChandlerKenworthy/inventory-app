@@ -35,3 +35,10 @@
     margin: 0;
     transition: border 0.15s ease;
 }
+
+.action-buttons {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    align-items: center;
+}
