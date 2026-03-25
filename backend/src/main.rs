@@ -1,4 +1,4 @@
-use axum::{Router, routing::get, routing::post};
+use axum::{Router, routing::get, routing::post, routing::delete};
 use std::{sync::Arc};
 use sqlx::sqlite::SqlitePool;
 
@@ -44,14 +44,36 @@ async fn main() {
     .await
     .unwrap();
 
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            is_fragile BOOLEAN NOT NULL DEFAULT FALSE,
+            weight REAL NOT NULL,
+            width REAL NOT NULL,
+            height REAL NOT NULL,
+            depth REAL NOT NULL
+        );
+        "#
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
     let state = Arc::new(AppState { db: pool });
 
     let app = Router::new()
         .route("/api/inventory", get(api::inventory_routes::get_inventory))
         .route("/api/inventory", post(api::inventory_routes::update_inventory))
+        .route("/api/modify_inventory", post(api::inventory_routes::modify_inventory))
         .route("/api/customers", get(api::customer_routes::get_customers))
         .route("/api/customers", post(api::customer_routes::update_customers))
         .route("/api/health", get(api::status_routes::get_status))
+        .route("/api/products", get(api::product_routes::get_products))
+        .route("/api/products", post(api::product_routes::add_product))
+        .route("/api/inventory/{id}", delete(api::inventory_routes::delete_inventory_item))
+        .route("/api/products/{id}", delete(api::product_routes::delete_product))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")

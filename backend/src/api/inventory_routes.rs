@@ -1,7 +1,8 @@
 use axum::{
     extract::State,
     Json,
-    http::StatusCode
+    http::StatusCode,
+    extract::Path,
 };
 use std::sync::Arc;
 use sqlx::Row;
@@ -11,7 +12,10 @@ use crate::state::AppState;
 pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<InventoryResponseItem>> {
 
     let rows = sqlx::query(
-        "SELECT product_id, quantity, aisle, shelf, bin FROM inventory"
+        r#"
+        SELECT product_id, quantity, aisle, shelf, bin FROM inventory
+        WHERE quantity > 0
+        "#
     ).fetch_all(&state.db)
     .await.unwrap();
 
@@ -26,6 +30,30 @@ pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<Inven
     }).collect();
 
     Json(inventory)
+}
+
+pub async fn modify_inventory(
+    State(state): State<Arc<AppState>>,
+    Json(payload): Json<CreateInventoryItem>
+) -> Result<Json<String>, StatusCode> {
+    let result = sqlx::query(
+        r#"
+        UPDATE inventory
+        SET quantity = ?, aisle = ?, shelf = ?, bin = ?
+        WHERE product_id = ?
+        "#
+    )
+    .bind(payload.quantity as i64)
+    .bind(payload.aisle as i64)
+    .bind(payload.shelf as i64)
+    .bind(payload.bin as i64)
+    .bind(payload.product_id as i64) // Match on the ID
+    .execute(&state.db);
+    
+    match result.await {
+        Ok(_) => Ok(Json("Item modified".to_string())),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    }
 }
 
 pub async fn update_inventory(
@@ -53,3 +81,25 @@ pub async fn update_inventory(
     }
 }
 
+pub async fn delete_inventory_item(
+    State(state): State<Arc<AppState>>,
+    Path(product_id): Path<i64>, // Extracts {id} from the URL
+) -> Result<StatusCode, StatusCode> {
+    let result = sqlx::query(
+        r#"
+        DELETE FROM inventory WHERE product_id = ?
+        "#
+    )
+    .bind(product_id)
+    .execute(&state.db);
+
+    match result.await {
+        Ok(res) => {// Check if any rows were actually deleted
+            if res.rows_affected() == 0 {
+                return Err(StatusCode::NOT_FOUND);
+            }
+            Ok(StatusCode::OK)
+        }
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}

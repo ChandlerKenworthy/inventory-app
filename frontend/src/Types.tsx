@@ -6,6 +6,16 @@ export type InventoryItem = {
   bin: number
 }
 
+export type ProductResponseItem = {
+  id: number,
+  name: string,
+  is_fragile: boolean,
+  weight: number,
+  width: number,
+  height: number,
+  depth: number
+}
+
 export type CustomerItem = {
   id: number,
   first_name: string,

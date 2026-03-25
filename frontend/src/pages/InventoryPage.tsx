@@ -1,9 +1,8 @@
-// src/pages/InventoryPage.tsx
 import { useEffect, useState, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import type { InventoryItem } from "../Types";
 import InventoryItemRow from "../components/InventoryItemRow";
-import { GoFilter, GoSortAsc, GoSortDesc } from "react-icons/go";
+import { GoFilter, GoSortAsc, GoSortDesc, GoSearch } from "react-icons/go";
 import "../styles/pages/Page.css";
 import "../styles/pages/InventoryPage.css";
 
@@ -59,64 +58,86 @@ export default function InventoryPage() {
   const isActive = (field: SortField, direction: SortDirection) =>
     sort?.field === field && sort?.direction === direction;
 
+  const deleteItemHandler = async (id: number) => {
+    const response = await fetch(`/api/inventory/${id}`, {
+        method: 'DELETE',
+    });
+    if(!response.ok) {
+        console.error('Failed to delete item');
+    } else {
+        console.log('Item deleted successfully');
+    }
+    fetchInventory();
+  }
+
+  const modifyItemHandler = () => console.log("modify the them...");
+
   return (
     <div className="page-container">
     	<Navbar />
-        <div className="content-container">
-        	<h1 className="page-title">Inventory</h1>
+      <div className="content-container">
+        <h1 className="page-title">Inventory</h1>
 
-            <div className="filters-wrapper">
-              <div className="filter-icon">Filter <GoFilter /></div>
+          <div className="filters-wrapper">
+            <div className="filter-icon">Filter <GoFilter /></div>
 
-              <div className="sort-group">
-                <span className="sort-label">Product ID</span>
-                <button
-                  className={`filter-icon${isActive("product_id", "asc") ? " filter-icon--active" : ""}`}
-                  onClick={() => handleSort("product_id", "asc")}
-                >
-                  Asc <GoSortAsc />
-                </button>
-                <button
-                  className={`filter-icon${isActive("product_id", "desc") ? " filter-icon--active" : ""}`}
-                  onClick={() => handleSort("product_id", "desc")}
-                >
-                  Desc <GoSortDesc />
-                </button>
-              </div>
-
-              <div className="sort-group">
-                <span className="sort-label">Quantity</span>
-                <button
-                  className={`filter-icon${isActive("quantity", "asc") ? " filter-icon--active" : ""}`}
-                  onClick={() => handleSort("quantity", "asc")}
-                >
-                  Asc <GoSortAsc />
-                </button>
-                <button
-                  className={`filter-icon${isActive("quantity", "desc") ? " filter-icon--active" : ""}`}
-                  onClick={() => handleSort("quantity", "desc")}
-                >
-                  Desc <GoSortDesc />
-                </button>
-              </div>
+            <div className="sort-group">
+              <span className="sort-label">Product ID</span>
+              <button
+                className={`filter-icon${isActive("product_id", "asc") ? " filter-icon--active" : ""}`}
+                onClick={() => handleSort("product_id", "asc")}
+              >
+                Asc <GoSortAsc />
+              </button>
+              <button
+                className={`filter-icon${isActive("product_id", "desc") ? " filter-icon--active" : ""}`}
+                onClick={() => handleSort("product_id", "desc")}
+              >
+                Desc <GoSortDesc />
+              </button>
             </div>
 
-            <div className="inventory-list">
-              <div className="inventory-table-header">
-                <span>Product ID</span>
-                <span>Quantity</span>
-                <span>Aisle</span>
-                <span>Shelf</span>
-                <span>Bin</span>
-                <span>Edit</span>
-              </div>
-              <div className="inventory-table-body">
-                {sortedInventory.map((item: InventoryItem) => (
-                  <InventoryItemRow item={item} key={item.product_id} />
-                ))}
-              </div>
-            </div> 
-        </div>
+            <div className="sort-group">
+              <span className="sort-label">Quantity</span>
+              <button
+                className={`filter-icon${isActive("quantity", "asc") ? " filter-icon--active" : ""}`}
+                onClick={() => handleSort("quantity", "asc")}
+              >
+                Asc <GoSortAsc />
+              </button>
+              <button
+                className={`filter-icon${isActive("quantity", "desc") ? " filter-icon--active" : ""}`}
+                onClick={() => handleSort("quantity", "desc")}
+              >
+                Desc <GoSortDesc />
+              </button>
+            </div>
+
+            <div className="filter-icon">Search <GoSearch /></div>
+
+          </div>
+
+          <div className="inventory-list">
+            <div className="inventory-table-header">
+              <span>Product ID</span>
+              <span>Quantity</span>
+              <span>Aisle</span>
+              <span>Shelf</span>
+              <span>Bin</span>
+              <span>Edit</span>
+              <span>Delete</span>
+            </div>
+            <div className="inventory-table-body">
+              {sortedInventory.map((item: InventoryItem) => (
+                <InventoryItemRow 
+                  item={item} 
+                  key={item.product_id} 
+                  deleteItemHandler={deleteItemHandler}
+                  onUpdateSuccess={fetchInventory} />
+              ))}
+            </div>
+          </div> 
+      </div>
     </div>
   );
 }
