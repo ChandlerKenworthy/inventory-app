@@ -66,6 +66,7 @@ async fn main() {
     let app = Router::new()
         .route("/api/inventory", get(api::inventory_routes::get_inventory))
         .route("/api/inventory", post(api::inventory_routes::update_inventory))
+        .route("/api/modify_inventory", post(api::inventory_routes::modify_inventory))
         .route("/api/customers", get(api::customer_routes::get_customers))
         .route("/api/customers", post(api::customer_routes::update_customers))
         .route("/api/health", get(api::status_routes::get_status))
