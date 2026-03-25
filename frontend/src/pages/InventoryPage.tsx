@@ -58,6 +58,18 @@ export default function InventoryPage() {
   const isActive = (field: SortField, direction: SortDirection) =>
     sort?.field === field && sort?.direction === direction;
 
+  const deleteItemHandler = async (id: number) => {
+    const response = await fetch(`/api/inventory/${id}`, {
+        method: 'DELETE',
+    });
+    if(!response.ok) {
+        console.error('Failed to delete item');
+    } else {
+        console.log('Item deleted successfully');
+    }
+    fetchInventory();
+  }
+
   return (
     <div className="page-container">
     	<Navbar />
@@ -112,7 +124,10 @@ export default function InventoryPage() {
               </div>
               <div className="inventory-table-body">
                 {sortedInventory.map((item: InventoryItem) => (
-                  <InventoryItemRow item={item} key={item.product_id} />
+                  <InventoryItemRow 
+                    item={item} 
+                    key={item.product_id} 
+                    deleteItemHandler={deleteItemHandler} />
                 ))}
               </div>
             </div> 

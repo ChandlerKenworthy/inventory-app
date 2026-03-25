@@ -24,6 +24,29 @@ export default function ProductsPage() {
         } else {
             console.log('Product removed successfully');
         }
+        fetchProducts();
+    }
+
+    const addToInventoryHandler = async (id: number) => {
+        // Add the item with this ID with default quantity of 1 and default location to the inventory of the warehouse
+        const response = await fetch(`/api/inventory`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: id,
+                quantity: 1,
+                aisle: 0,
+                shelf: 0,
+                bin: 0
+            }),
+        });
+        if(!response.ok) {
+            console.error('Failed to add product to inventory');
+        } else {
+            console.log('Product added to inventory successfully');
+        }
     }
 
     useEffect(() => {
@@ -53,7 +76,8 @@ export default function ProductsPage() {
                             <ProductItemRow 
                                 key={product.id} 
                                 product={product} 
-                                deleteProductHandler={deleteProductHandler} 
+                                deleteProductHandler={deleteProductHandler}
+                                addToInventoryHandler={addToInventoryHandler}
                             />
                         ))}
                         </div>
