@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import Navbar from "../components/Navbar";
 import type { InventoryItem } from "../Types";
 import InventoryItemRow from "../components/InventoryItemRow";
-import { GoFilter, GoSortAsc, GoSortDesc, GoSearch } from "react-icons/go";
+import { GoFilter, GoSortAsc, GoSortDesc, GoSearch, GoXCircle } from "react-icons/go";
 import "../styles/pages/InventoryPage.css";
 import Page from "../components/Page";
 
@@ -127,7 +126,12 @@ export default function InventoryPage() {
             value={searchTerm || ""} 
             onChange={(e) => setSearchTerm(e.target.value || null)}
           />
-          <GoSearch />
+          <button
+            className="search-btn"
+            onClick={() => setSearchTerm(null)}
+          >
+            {searchTerm ? <GoXCircle /> : <GoSearch />}
+          </button>
         </div>
       </div>
       <div className="inventory-list">
