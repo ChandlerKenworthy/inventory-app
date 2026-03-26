@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { InventoryItem } from "../Types";
 import { GoPencil, GoTrash, GoCheckCircle, GoX } from "react-icons/go";
 import TableNumberInput from "./forms/TableNumberInput";
@@ -52,7 +53,12 @@ export default function InventoryItemRow(
         <form className="inventory-table-row" onSubmit={handleSubmit(onSubmit)}>
             {/* Hidden field for product_id as needed in the form data */}
             <input type="hidden" {...register("product_id")} />
-            <span>{item.product_id}</span>
+            <Link 
+                to={`/products/${item.product_id}`} 
+                className="product-id-link"
+            >
+                {item.product_id}
+            </Link>
 
             {isModifying ? (
                 <TableNumberInput 

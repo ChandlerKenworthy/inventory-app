@@ -10,6 +10,10 @@
     transition: background-color 0.15s ease;
 }
 
+.inventory-table-row span:first-child {
+    text-align: left;
+}
+
 .inventory-table-row:last-child {
     border-bottom: none;
 }
@@ -21,6 +25,7 @@
 .inventory-table-row span {
     font-size: 0.875rem;
     color: #111827;
+    text-align: center;
 }
 
 .modify-pencil {
@@ -41,4 +46,17 @@
     gap: 0.25rem;
     justify-content: center;
     align-items: center;
+}
+
+.product-id-link {
+    color: #111827;
+    font-size: 0.875rem;
+    font-weight: 400;
+    text-align: center;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.product-id-link:hover {
+    color: rgb(34, 114, 189);
 }

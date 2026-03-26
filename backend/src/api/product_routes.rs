@@ -34,6 +34,37 @@ pub async fn get_products(
     Json(products)
 }
 
+pub async fn get_product_details(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>
+) -> Result<Json<ProductResponseItem>, StatusCode> {
+    let row = sqlx::query(
+        "
+        SELECT * FROM products
+        WHERE id = ?
+        "
+    )
+    .bind(id as i64)
+    .fetch_one(&state.db)
+    .await;
+
+    match row {
+        Ok(row) => {
+            let product = ProductResponseItem {
+                name: row.get("name"),
+                id: row.get("id"),
+                is_fragile: row.get("is_fragile"),
+                weight: row.get("weight"),
+                width: row.get("width"),
+                height: row.get("height"),
+                depth: row.get("depth"),
+            };
+            Ok(Json(product))
+        }
+        Err(_) => Err(StatusCode::NOT_FOUND)
+    }
+}
+
 pub async fn add_product(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<ProductResponseItem>
