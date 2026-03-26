@@ -1,5 +1,4 @@
 
-import Navbar from "../components/Navbar";
 import { useState, useEffect } from "react";
 import type { CustomerItem } from "../Types";
 import CustomerCard from "../components/CustomerCard";
@@ -9,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomerSchema, { type NewCustomerFormData } from "../schema/CustomerSchema";
 import "../styles/pages/CustomersPage.css";
+import Page from "../components/Page";
 
 interface CustomerFormProps {
   onSuccess: () => void; // tells the parent to re-fetch after submit
@@ -88,11 +88,8 @@ export default function CustomersPage() {
   }, []);
 
   return (
-    <div className="page-container">
-      <Navbar />
-      <div className="content-container">
-        <h1 className="page-title">Customers</h1>
-        <div className="content-wrapper">
+    <Page title="Customers">
+      <div className="content-wrapper">
           <div className="customers-wrapper">
             {customers.map((customer: CustomerItem) => (
               <CustomerCard customer={customer} key={customer.id} />
@@ -100,7 +97,6 @@ export default function CustomersPage() {
           </div>
           <CustomerForm onSuccess={fetchCustomers} />
         </div>
-      </div>
-    </div>
+    </Page>
   );
 }

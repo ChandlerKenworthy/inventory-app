@@ -1,12 +1,10 @@
-import Navbar from "../components/Navbar";
+import Page from "../components/Page";
 
 export default function HomePage() {
     return (
-        <div className='page-container'>
-            <Navbar />
-            <div className='content-container'>
-                <h1 className="page-title">Home</h1>
-            </div>
-        </div>
+        <Page title="Home">
+            <h4>Welcome to the Inventory Management System</h4>
+            <p>Use the navigation bar to explore products, customers, and inventory.</p>
+        </Page>
     )
 }

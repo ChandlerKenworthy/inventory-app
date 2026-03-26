@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import type { ProductResponseItem } from "../Types";
-import Navbar from "../components/Navbar";
-import "../styles/pages/Page.css";
 import "../styles/pages/ProductsPage.css"
 import AddNewProduct from "../components/forms/AddNewProduct";
 import ProductItemRow from "../components/ProductItemRow";
+import Page from "../components/Page";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductResponseItem[]>([]);
@@ -54,36 +53,32 @@ export default function ProductsPage() {
     }, []);
 
     return (
-        <div className="page-container">
-            <Navbar />
-            <div className="content-container">
-                <h1 className="page-title">Product Catalogue</h1>
-                <div className="content-wrapper">
-                    <AddNewProduct onSuccess={() => fetchProducts()} />
-                    <div className="products-list">
-                        <div className="products-table-header">
-                            <span>Product ID</span>
-                            <span>Name</span>
-                            <span>Weight (kg)</span>
-                            <span>Dim. (W/H/D) (cm)</span>
-                            <span>Is Fragile</span>
-                            <span>Add</span>
-                            <span>Modify</span>
-                            <span>Delete</span>
-                        </div>
-                        <div className="products-table-body">
-                        {products.map((product: ProductResponseItem) => (
-                            <ProductItemRow 
-                                key={product.id} 
-                                product={product} 
-                                deleteProductHandler={deleteProductHandler}
-                                addToInventoryHandler={addToInventoryHandler}
-                            />
-                        ))}
-                        </div>
-                    </div>  
-                </div>
+        <Page title="Products Catalogue">
+            <div className="content-wrapper">
+                <AddNewProduct onSuccess={() => fetchProducts()} />
+                <div className="products-list">
+                    <div className="products-table-header">
+                        <span>Product ID</span>
+                        <span>Name</span>
+                        <span>Weight (kg)</span>
+                        <span>Dim. (W/H/D) (cm)</span>
+                        <span>Is Fragile</span>
+                        <span>Add</span>
+                        <span>Modify</span>
+                        <span>Delete</span>
+                    </div>
+                    <div className="products-table-body">
+                    {products.map((product: ProductResponseItem) => (
+                        <ProductItemRow 
+                            key={product.id} 
+                            product={product} 
+                            deleteProductHandler={deleteProductHandler}
+                            addToInventoryHandler={addToInventoryHandler}
+                        />
+                    ))}
+                    </div>
+                </div>  
             </div>
-        </div>
+        </Page>
     );
 }
