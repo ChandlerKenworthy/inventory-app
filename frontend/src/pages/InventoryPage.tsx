@@ -17,6 +17,7 @@ interface SortState {
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [sort, setSort] = useState<SortState | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string | null>(null);
 
   const fetchInventory = async () => {
     const res = await fetch("/api/inventory");
@@ -30,9 +31,20 @@ export default function InventoryPage() {
 
   // Derive sorted list — only re-runs when inventory or sort changes
   const sortedInventory = useMemo(() => {
-    if (!sort) return inventory;
+    if (!searchTerm && !sort) return inventory;
 
-    return [...inventory].sort((a, b) => {
+    // 1. Filter the list first
+    let result = inventory;
+    if(searchTerm) {
+      result = inventory.filter((item) =>
+        item.product_id.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // 2. Sort the filtered result
+    if (!sort) return result;
+
+    return [...result].sort((a, b) => {
       const aVal = a[sort.field];
       const bVal = b[sort.field];
 
@@ -44,7 +56,7 @@ export default function InventoryPage() {
 
       return sort.direction === "asc" ? comparison : -comparison;
     });
-  }, [inventory, sort]);
+  }, [inventory, sort, searchTerm]);
 
   const handleSort = (field: SortField, direction: SortDirection) => {
     // Clicking the active sort again clears it back to default order
@@ -107,7 +119,16 @@ export default function InventoryPage() {
             Desc <GoSortDesc />
           </button>
         </div>
-        <div className="filter-icon">Search <GoSearch /></div>
+        <div className="sort-group">
+          <input
+            className="filter-icon"
+            type="text" 
+            placeholder="Search by Product ID" 
+            value={searchTerm || ""} 
+            onChange={(e) => setSearchTerm(e.target.value || null)}
+          />
+          <GoSearch />
+        </div>
       </div>
       <div className="inventory-list">
         <div className="inventory-table-header">
