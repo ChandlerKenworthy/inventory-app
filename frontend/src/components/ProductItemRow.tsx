@@ -1,6 +1,7 @@
 import type { ProductResponseItem } from "../Types"
 import { GoPlusCircle, GoPencil, GoTrash } from "react-icons/go";
 import "../styles/components/ProductItemRow.css";
+import { Link } from "react-router-dom";
 
 export default function ProductItemRow(
     { product, deleteProductHandler, addToInventoryHandler } : 
@@ -11,7 +12,12 @@ export default function ProductItemRow(
     }) {
     return (
         <div className="product-table-row">
-            <span>{product.id}</span>
+            <Link 
+                to={`/products/${product.id}`} 
+                className="product-id-link"
+            >
+                {product.id}
+            </Link>
             <span>{product.name}</span>
             <span>{product.weight}</span>
             <span>{product.width} x {product.height} x {product.depth}</span>
