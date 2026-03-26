@@ -1,6 +1,5 @@
 import "../styles/components/StatusBadge.css";
-
-type ConnectionStatus = "checking" | "connected" | "disconnected";
+import type { ConnectionStatus } from "../Types";
 
 interface StatusBadgeProps {
   status: ConnectionStatus;

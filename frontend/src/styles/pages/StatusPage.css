@@ -1,6 +1,13 @@
 .status-row {
     display: flex;
     gap: 0.5rem;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.header-content {
+    display: flex;
+    gap: 0.5rem;
     align-items: center;
 }

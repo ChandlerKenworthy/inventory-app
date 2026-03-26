@@ -31,3 +31,5 @@ export const DefaultCustomer = {
   email: "",
   is_new_customer: true
 } as CustomerItem;
+
+export type ConnectionStatus = "checking" | "connected" | "disconnected";
