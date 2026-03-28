@@ -52,7 +52,7 @@ export default function AddNewProduct({ onSuccess, setFeedback }: AddNewProductP
         } catch (err) {
             setFeedback({ type: 'error', message: 'Network error: ' + err });
         }
-        
+        setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
     };
 
     return (
