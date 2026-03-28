@@ -59,7 +59,7 @@ pub async fn modify_inventory(
 pub async fn update_inventory(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateInventoryItem>
-) -> Result<Json<String>, StatusCode> {
+) -> Result<Json<String>, (StatusCode, Json<String>)> {
     let result = sqlx::query(
         r#"INSERT INTO inventory (product_id, quantity, aisle, shelf, bin)
             VALUES (?, ?, ?, ?, ?)
@@ -77,7 +77,13 @@ pub async fn update_inventory(
     
     match result.await {
         Ok(_) => Ok(Json("Item added".to_string())),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+        Err(e) => {
+            eprintln!("Database error: {:?}", e); // Log the actual error for debugging
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR, 
+                Json("Database connection failed".to_string())
+            ))
+        }
     }
 }
 

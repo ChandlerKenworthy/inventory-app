@@ -1,15 +1,20 @@
 import { useState, useEffect, useMemo } from "react";
-import type { ProductResponseItem } from "../Types";
+import type { APIResponse, ProductResponseItem } from "../Types";
 import "../styles/pages/ProductsPage.css"
 import { GoSearch, GoXCircle } from "react-icons/go";
 import AddNewProduct from "../components/forms/AddNewProduct";
 import ProductItemRow from "../components/ProductItemRow";
 import Page from "../components/Page";
+import FeedbackPopup from "../components/FeedbackPopup";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductResponseItem[]>([]);
     const [productIDSearchTerm, setProductIDSearchTerm] = useState<string | null>("");
     const [productNameSearchTerm, setProductNameSearchTerm] = useState<string | null>("");
+    const [feedback, setFeedback] = useState<{ type: APIResponse, message: string }>({
+        type: null,
+        message: ''
+    });
 
     const filteredProducts = useMemo(() => {
         const result = products.filter((product) => {
@@ -39,25 +44,36 @@ export default function ProductsPage() {
     }
 
     const addToInventoryHandler = async (id: number) => {
-        // Add the item with this ID with default quantity of 1 and default location to the inventory of the warehouse
-        const response = await fetch(`/api/inventory`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                product_id: id,
-                quantity: 1,
-                aisle: 0,
-                shelf: 0,
-                bin: 0
-            }),
-        });
-        if(!response.ok) {
-            console.error('Failed to add product to inventory');
-        } else {
-            console.log('Product added to inventory successfully');
+        try {
+            // Add the item with this ID with default quantity of 1 and default location to the inventory of the warehouse
+            const response = await fetch(`/api/inventory`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    product_id: id,
+                    quantity: 1,
+                    aisle: 0,
+                    shelf: 0,
+                    bin: 0
+                }),
+            });
+
+            // Parse the JSON body regardless of success/fail to get the message
+            const data = await response.json();
+
+            if(!response.ok) {
+                setFeedback({ type: 'error', message: data || 'Failed to update inventory' });
+            } else {
+                setFeedback({ type: 'success', message: data || 'Product added successfully!' });
+            }
+        } catch (err) {
+            setFeedback({ type: 'error', message: 'Network error. Please try again.' });
         }
+
+        // Clear the message after 5 seconds
+        setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
     }
 
     useEffect(() => {
@@ -66,6 +82,7 @@ export default function ProductsPage() {
 
     return (
         <Page title="Products Catalogue">
+            {feedback.type && <FeedbackPopup feedback={feedback} onClose={() => setFeedback({ type: null, message: '' })} />}
             <div className="content-wrapper">
                 <AddNewProduct onSuccess={() => fetchProducts()} />
                 <div className="products-list">
