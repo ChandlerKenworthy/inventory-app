@@ -6,12 +6,14 @@ import "../../styles/components/forms/AddNewProduct.css";
 import TextInput from "./TextInput";
 import NumberInput from "./NumberInput";
 import RadioInput from "./RadioInput";
+import type { APIResponse } from "../../Types";
 
 interface AddNewProductProps {
     onSuccess: () => void;
+    setFeedback: (feedback: { type: APIResponse; message: string }) => void;
 }
 
-export default function AddNewProduct({ onSuccess }: AddNewProductProps) {
+export default function AddNewProduct({ onSuccess, setFeedback }: AddNewProductProps) {
     const {
         register,
         handleSubmit,
@@ -31,13 +33,26 @@ export default function AddNewProduct({ onSuccess }: AddNewProductProps) {
     });
 
     const onSubmit = async (data: NewProductItemFormData) => {
-        await fetch("/api/products", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
-        reset();
-        onSuccess();
+        try {
+            const response = await fetch("/api/products", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const resp_data = await response.json();
+
+            if(!response.ok) {
+                setFeedback({ type: 'error', message: resp_data || 'Failed to add new product.' });
+            } else {
+                setFeedback({ type: 'success', message: resp_data || 'New product added successfully!' });
+            }
+            reset();
+            onSuccess();
+        } catch (err) {
+            setFeedback({ type: 'error', message: 'Network error: ' + err });
+        }
+        
     };
 
     return (

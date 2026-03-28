@@ -32,15 +32,21 @@ export default function ProductsPage() {
     }
 
     const deleteProductHandler = async (id: number) => {
-        const response = await fetch(`/api/products/${id}`, {
-            method: 'DELETE',
-        });
-        if(!response.ok) {
-            console.error('Failed to delete product from catalogue');
-        } else {
-            console.log('Product removed successfully');
+        try {
+            const response = await fetch(`/api/products/${id}`, {
+                method: 'DELETE',
+            });
+            if(!response.ok) {
+                setFeedback({ type: 'error', message: 'Failed to delete product from catalogue' });
+            } else {
+                setFeedback({ type: 'success', message: 'Product removed successfully' });
+            }
+            fetchProducts();
+        } catch (err) {
+            setFeedback({ type: 'error', message: 'Network error. Please try again.' });
         }
-        fetchProducts();
+        // Clear the message after 5 seconds
+        setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
     }
 
     const addToInventoryHandler = async (id: number) => {
@@ -84,7 +90,7 @@ export default function ProductsPage() {
         <Page title="Products Catalogue">
             {feedback.type && <FeedbackPopup feedback={feedback} onClose={() => setFeedback({ type: null, message: '' })} />}
             <div className="content-wrapper">
-                <AddNewProduct onSuccess={() => fetchProducts()} />
+                <AddNewProduct onSuccess={() => fetchProducts()} setFeedback={setFeedback} />
                 <div className="products-list">
                     <div className="search-fields">
                         <div className="sort-group">
