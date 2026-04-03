@@ -10,6 +10,8 @@ import "../styles/pages/CustomersPage.css";
 import Page from "../components/Page";
 import FeedbackPopup from "../components/FeedbackPopup";
 import CustomerRow from "../components/CustomerRow";
+import { customerService } from "../services/customerService";
+import { ClimbingBoxLoader } from "react-spinners";
 
 interface CustomerFormProps {
   onSuccess: () => void; // tells the parent to re-fetch after submit
@@ -35,27 +37,15 @@ function CustomerForm({ onSuccess, setFeedback }: CustomerFormProps) {
 
   // passed into RHF's handleSubmit()
   const onSubmit = async (data: NewCustomerFormData) => {
-    try {
-      const response = await fetch("/api/customers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const resp_data = await response.json();
-      
-      if (!response.ok) { // if response is not 2xx, treat as error
-        setFeedback({ type: 'error', message: resp_data || 'Failed to add new customer.' });
-      } else {
-        setFeedback({ type: 'success', message: resp_data || 'New customer added successfully!' });
-      }
-
-      reset();         // clear the form back to defaultValues
-      onSuccess();     // trigger parent re-fetch
-    } catch (err) {
-      setFeedback({ type: 'error', message: 'Network error: ' + err });
+    const result = await customerService.add(data);
+    setFeedback({
+        type: result.success ? 'success' : 'error',
+        message: result.message
+    });
+    reset(); // Clear the form, whatever happens
+    if (result.success) {
+      onSuccess(); // Refresh the list
     }
-    setTimeout(() => setFeedback({ type: null, message: '' }), 5000); // clear feedback after 5 seconds
   };
 
   return (
@@ -85,12 +75,13 @@ function CustomerForm({ onSuccess, setFeedback }: CustomerFormProps) {
         error={errors.email?.message}
         {...register("email")}
       />
-      <button type="submit">Update Customer</button>
+      <button type="submit">Add Customer</button>
     </form>
   );
 }
 
 export default function CustomersPage() {
+  const [loading, setLoading] = useState<boolean>(true);
   const [customers, setCustomers] = useState<CustomerItem[]>([]);
   const [feedback, setFeedback] = useState<{ type: APIResponse, message: string }>({
         type: null,
@@ -98,30 +89,24 @@ export default function CustomersPage() {
     });
 
   const fetchCustomers = async () => {
+    setLoading(true);
     const res = await fetch("/api/customers");
     const data = await res.json();
     setCustomers(data);
+    setLoading(false);
   };
 
   const deleteCustomerHandler = async (customerId: number) => {
-    console.log("Called with ID:", customerId);
-    try {
-      const response = await fetch(`/api/customers/${customerId}`, {
-        method: "DELETE",
-      });
-      console.log("Response status:", response.status);
-      console.log("Response OK?", response.ok);
-      if (!response.ok) {
-        setFeedback({ type: 'error', message: 'Failed to delete customer.' });
-      } else {
-        setFeedback({ type: 'success', message: 'Customer deleted successfully!' });
-      }
-    } catch (err) {
-      setFeedback({ type: 'error', message: 'Network error: ' + err });
+    setLoading(true);
+    const result = await customerService.delete(customerId);
+    setFeedback({
+        type: result.success ? 'success' : 'error',
+        message: result.message
+    });
+    if (result.success) {
+        fetchCustomers(); // Refresh the list
     }
-    fetchCustomers(); // re-fetch after deletion
-    // Clear the message after 5 seconds
-    //setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -134,7 +119,8 @@ export default function CustomersPage() {
       <div className="content-wrapper">
         <CustomerForm onSuccess={fetchCustomers} setFeedback={setFeedback} />
 
-        <div className="customers-table">
+        <ClimbingBoxLoader color="#000" size={12} loading={loading} />
+        {!loading && (<div className="customers-table">
           <div className="customers-table-header">
             <span>Customer ID</span>
             <span>First Name</span>
@@ -152,7 +138,7 @@ export default function CustomersPage() {
               />
           ))}
           </div>
-        </div>
+        </div>)}
         
         </div>
     </Page>

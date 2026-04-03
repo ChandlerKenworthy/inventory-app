@@ -6,6 +6,12 @@ export type InventoryItem = {
   bin: number
 }
 
+export interface ServiceResponse<T> {
+    success: boolean;
+    message: string;
+    data?: T;
+}
+
 export type ProductResponseItem = {
   id: number,
   name: string,

@@ -15,7 +15,7 @@ export default function CustomerRow(
             <span>{customer.first_name}</span>
             <span>{customer.second_name}</span>
             <span>{customer.email}</span>
-            <span>{customer.is_new_customer ? "Yes" : "No"}</span>
+            <span>?</span>
             <button 
                 type="button"
                 onClick={() => deleteCustomerHandler(customer.id)}
