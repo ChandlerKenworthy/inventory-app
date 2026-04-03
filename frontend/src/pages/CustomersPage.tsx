@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import type { APIResponse, CustomerItem } from "../Types";
-import CustomerCard from "../components/CustomerCard";
 import TextInput from "../components/forms/TextInput";
 import NumberInput from "../components/forms/NumberInput";
 import { useForm } from "react-hook-form";
@@ -10,6 +9,7 @@ import CustomerSchema, { type NewCustomerFormData } from "../schema/CustomerSche
 import "../styles/pages/CustomersPage.css";
 import Page from "../components/Page";
 import FeedbackPopup from "../components/FeedbackPopup";
+import CustomerRow from "../components/CustomerRow";
 
 interface CustomerFormProps {
   onSuccess: () => void; // tells the parent to re-fetch after submit
@@ -103,6 +103,27 @@ export default function CustomersPage() {
     setCustomers(data);
   };
 
+  const deleteCustomerHandler = async (customerId: number) => {
+    console.log("Called with ID:", customerId);
+    try {
+      const response = await fetch(`/api/customers/${customerId}`, {
+        method: "DELETE",
+      });
+      console.log("Response status:", response.status);
+      console.log("Response OK?", response.ok);
+      if (!response.ok) {
+        setFeedback({ type: 'error', message: 'Failed to delete customer.' });
+      } else {
+        setFeedback({ type: 'success', message: 'Customer deleted successfully!' });
+      }
+    } catch (err) {
+      setFeedback({ type: 'error', message: 'Network error: ' + err });
+    }
+    fetchCustomers(); // re-fetch after deletion
+    // Clear the message after 5 seconds
+    //setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
+  }
+
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -111,12 +132,28 @@ export default function CustomersPage() {
     <Page title="Customers">
       {feedback.type && <FeedbackPopup feedback={feedback} onClose={() => setFeedback({ type: null, message: '' })} />}
       <div className="content-wrapper">
-          <div className="customers-wrapper">
-            {customers.map((customer: CustomerItem) => (
-              <CustomerCard customer={customer} key={customer.id} />
-            ))}
+        <CustomerForm onSuccess={fetchCustomers} setFeedback={setFeedback} />
+
+        <div className="customers-table">
+          <div className="customers-table-header">
+            <span>Customer ID</span>
+            <span>First Name</span>
+            <span>Last Name</span>
+            <span>Email</span>
+            <span># Orders</span>
+            <span>Delete</span>
           </div>
-          <CustomerForm onSuccess={fetchCustomers} setFeedback={setFeedback} />
+          <div className="customers-table-body">
+          {customers.map((customer: CustomerItem) => (
+              <CustomerRow 
+                key={customer.id} 
+                customer={customer}
+                deleteCustomerHandler={deleteCustomerHandler}
+              />
+          ))}
+          </div>
+        </div>
+        
         </div>
     </Page>
   );
