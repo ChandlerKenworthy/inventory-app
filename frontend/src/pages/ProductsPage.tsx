@@ -6,6 +6,8 @@ import AddNewProduct from "../components/forms/AddNewProduct";
 import ProductItemRow from "../components/ProductItemRow";
 import Page from "../components/Page";
 import FeedbackPopup from "../components/FeedbackPopup";
+import { productService } from "../services/productService";
+import { ClimbingBoxLoader } from "react-spinners";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductResponseItem[]>([]);
@@ -15,6 +17,7 @@ export default function ProductsPage() {
         type: null,
         message: ''
     });
+    const [loading, setLoading] = useState<boolean>(true);
 
     const filteredProducts = useMemo(() => {
         const result = products.filter((product) => {
@@ -26,60 +29,33 @@ export default function ProductsPage() {
     }, [products, productIDSearchTerm, productNameSearchTerm]);
 
     const fetchProducts = async () => {
+        setLoading(true);
         const res = await fetch("/api/products");
         const data = await res.json();
         setProducts(data);
+        setLoading(false);
     }
 
     const deleteProductHandler = async (id: number) => {
-        try {
-            const response = await fetch(`/api/products/${id}`, {
-                method: 'DELETE',
-            });
-            if(!response.ok) {
-                setFeedback({ type: 'error', message: 'Failed to delete product from catalogue' });
-            } else {
-                setFeedback({ type: 'success', message: 'Product removed successfully' });
-            }
-            fetchProducts();
-        } catch (err) {
-            setFeedback({ type: 'error', message: 'Network error. Please try again.' });
+        setLoading(true);
+        const result = await productService.delete(id);
+        setFeedback({
+            type: result.success ? 'success' : 'error',
+            message: result.message
+        });
+        if (result.success) {
+            fetchProducts(); // Refresh the list
         }
-        // Clear the message after 5 seconds
-        setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
+        setLoading(false);
     }
 
     const addToInventoryHandler = async (id: number) => {
-        try {
-            // Add the item with this ID with default quantity of 1 and default location to the inventory of the warehouse
-            const response = await fetch(`/api/inventory`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: id,
-                    quantity: 1,
-                    aisle: 0,
-                    shelf: 0,
-                    bin: 0
-                }),
-            });
-
-            // Parse the JSON body regardless of success/fail to get the message
-            const data = await response.json();
-
-            if(!response.ok) {
-                setFeedback({ type: 'error', message: data || 'Failed to update inventory' });
-            } else {
-                setFeedback({ type: 'success', message: data || 'Product added successfully!' });
-            }
-        } catch (err) {
-            setFeedback({ type: 'error', message: 'Network error. Please try again.' });
-        }
-
-        // Clear the message after 5 seconds
-        setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
+        // No need to toggle loading state as this does not effect the product catalogue
+        const result = await productService.add(id);
+        setFeedback({
+            type: result.success ? 'success' : 'error',
+            message: result.message
+        });
     }
 
     useEffect(() => {
@@ -126,6 +102,8 @@ export default function ProductsPage() {
                             </button>
                         </div>
                     </div>
+                    <ClimbingBoxLoader color="#000" size={12} loading={loading} />
+                    {!loading && (<>
                     <div className="products-table-header">
                         <span>Product ID</span>
                         <span>Name</span>
@@ -146,6 +124,7 @@ export default function ProductsPage() {
                         />
                     ))}
                     </div>
+                    </>)}
                 </div>  
             </div>
         </Page>
