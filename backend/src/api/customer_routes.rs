@@ -1,7 +1,8 @@
 use axum::{
     extract::State,
     Json,
-    http::StatusCode
+    http::StatusCode,
+    extract::Path,
 };
 use std::sync::Arc;
 use sqlx::Row;
@@ -53,3 +54,25 @@ pub async fn update_customers(
     }
 }
 
+pub async fn delete_customer(
+    State(state): State<Arc<AppState>>,
+    Path(customer_id): Path<i64>, // Extracts {id} from the URL
+) -> Result<StatusCode, StatusCode> {
+    let result = sqlx::query(
+        r#"
+        DELETE FROM customers WHERE id = ?
+        "#
+    )
+    .bind(customer_id as i64)
+    .execute(&state.db);
+
+    match result.await {
+        Ok(res) => {// Check if any rows were actually deleted
+            if res.rows_affected() == 0 {
+                return Err(StatusCode::NOT_FOUND);
+            }
+            Ok(StatusCode::OK)
+        }
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}

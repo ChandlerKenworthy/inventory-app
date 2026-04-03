@@ -33,3 +33,4 @@ export const DefaultCustomer = {
 } as CustomerItem;
 
 export type ConnectionStatus = "checking" | "connected" | "disconnected";
+export type APIResponse = "success" | "error" | null;
