@@ -6,6 +6,18 @@ export type InventoryItem = {
   bin: number
 }
 
+export type OrderItem = {
+  id: number,
+  customer_id: number,
+  order_date: string,
+  items: {
+    product_id: number,
+    quantity: number
+  }[],
+  status: number,
+  total_price: number
+}
+
 export interface ServiceResponse<T> {
     success: boolean;
     message: string;

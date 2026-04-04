@@ -79,6 +79,7 @@ export default function UpdateInventoryPage() {
 		<div className="page-container">
 			<Navbar />
 			<div className="content-container">
+				<h3>DEFUNCT PAGE REMOVE ME</h3>
 				<h1 className="page-title">Update Inventory</h1>
 				<InventoryForm onSuccess={() => {}} />
 			</div>

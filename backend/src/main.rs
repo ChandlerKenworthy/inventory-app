@@ -61,6 +61,40 @@ async fn main() {
     .await
     .unwrap();
 
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY NOT NULL,
+            customer_id INTEGER NOT NULL,
+            status INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            delivery_date TIMESTAMP,
+            total_price REAL NOT NULL,
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        );
+        "#
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS order_items (
+            id INTEGER PRIMARY KEY NOT NULL,
+            order_id INTEGER NOT NULL,
+            product_id INTEGER NOT NULL,
+            quantity INTEGER NOT NULL CHECK (quantity > 0),
+            unit_price REAL NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id)
+        );
+        "#
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
     let state = Arc::new(AppState { db: pool });
 
     let app = Router::new()
@@ -76,6 +110,7 @@ async fn main() {
         .route("/api/products/{id}", delete(api::product_routes::delete_product))
         .route("/api/products/{id}", get(api::product_routes::get_product_details))
         .route("/api/customers/{id}", delete(api::customer_routes::delete_customer))
+        .route("/api/orders", get(api::order_routes::get_orders))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
