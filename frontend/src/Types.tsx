@@ -1,7 +1,7 @@
 import type { UUIDTypes } from "uuid"
 
 export type InventoryItem = {
-  product_id: number,
+  product_id: UUIDTypes,
   quantity: number
   aisle: number
   shelf: number
@@ -13,7 +13,7 @@ export type OrderItem = {
   customer_id: number,
   order_date: string,
   items: {
-    product_id: number,
+    product_id: UUIDTypes,
     quantity: number
   }[],
   status: number,

@@ -4,6 +4,8 @@ import InventoryItemRow from "../components/InventoryItemRow";
 import { GoFilter, GoSortAsc, GoSortDesc, GoSearch, GoXCircle } from "react-icons/go";
 import "../styles/pages/InventoryPage.css";
 import Page from "../components/Page";
+import type { UUIDTypes } from "uuid";
+import { inventoryService } from "../services/inventoryService";
 
 type SortField = "product_id" | "quantity";
 type SortDirection = "asc" | "desc";
@@ -69,16 +71,13 @@ export default function InventoryPage() {
   const isActive = (field: SortField, direction: SortDirection) =>
     sort?.field === field && sort?.direction === direction;
 
-  const deleteItemHandler = async (id: number) => {
-    const response = await fetch(`/api/inventory/${id}`, {
-        method: 'DELETE',
-    });
-    if(!response.ok) {
-        console.error('Failed to delete item');
+  const deleteItemHandler = async (id: UUIDTypes) => {
+    const result = await inventoryService.delete(id);
+    if(result.success) {
+      fetchInventory(); // Refresh the list
     } else {
-        console.log('Item deleted successfully');
+      alert("Failed to delete item: " + result.message);
     }
-    fetchInventory();
   }
 
   const modifyItemHandler = () => console.log("modify the them...");

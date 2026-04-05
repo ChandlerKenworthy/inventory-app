@@ -28,7 +28,7 @@ pub struct InventoryResponseItem {
     pub bin: u16,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct CreateInventoryItem {
     pub product_id: String,
     pub quantity: u32,

@@ -9,6 +9,7 @@ import FeedbackPopup from "../components/FeedbackPopup";
 import { productService } from "../services/productService";
 import { ClimbingBoxLoader } from "react-spinners";
 import type { UUIDTypes } from "uuid";
+import { inventoryService } from "../services/inventoryService";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductItem[]>([]);
@@ -51,12 +52,18 @@ export default function ProductsPage() {
     }
 
     const addToInventoryHandler = async (id: UUIDTypes) => {
-        // No need to toggle loading state as this does not effect the product catalogue
-        //const result = await productService.add(id);
-        //setFeedback({
-        //    type: result.success ? 'success' : 'error',
-        //    message: result.message
-        //});
+        const result = await inventoryService.add_product(id);
+        if(result.success) {
+            setFeedback({
+                type: 'success',
+                message: result.message
+            });
+        } else {
+            setFeedback({
+                type: 'error',
+                message: result.message
+            });
+        }
     }
 
     useEffect(() => {

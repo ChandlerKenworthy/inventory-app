@@ -1,5 +1,5 @@
 import type { ProductItem } from "../Types"
-import { GoPlusCircle, GoPencil, GoTrash } from "react-icons/go";
+import { GoPlusCircle, GoTrash } from "react-icons/go";
 import "../styles/components/ProductItemRow.css";
 import { Link } from "react-router-dom";
 import type { UUIDTypes } from "uuid";
@@ -26,8 +26,7 @@ export default function ProductItemRow(
             <span>£{product.price.toFixed(2)}</span>
             <button
                 type="button"
-                //onClick={() => addToInventoryHandler(product.id)}
-                onClick={() => console.log("Add me to the inventory")}
+                onClick={() => addToInventoryHandler(product.id)}
                 className="modify-delete"
             >
                 <GoPlusCircle />

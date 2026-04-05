@@ -18,7 +18,7 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS inventory (
-            product_id INTEGER PRIMARY KEY,
+            product_id TEXT PRIMARY KEY,
             quantity INTEGER NOT NULL,
             aisle INTEGER,
             shelf INTEGER,
