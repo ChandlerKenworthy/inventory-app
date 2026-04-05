@@ -1,12 +1,13 @@
 import { GoTrash } from "react-icons/go";
 import type { CustomerItem } from "../Types";
+import type { UUIDTypes } from "uuid";
 import "../styles/components/CustomerRow.css";
 
 export default function CustomerRow(
     { customer, deleteCustomerHandler } : 
     { 
         customer: CustomerItem,
-        deleteCustomerHandler: (id: number) => void,
+        deleteCustomerHandler: (id: UUIDTypes) => void,
     }
 ) {
     return (
@@ -19,7 +20,7 @@ export default function CustomerRow(
             <button 
                 type="button"
                 onClick={() => deleteCustomerHandler(customer.id)}
-                className="in-row-btn"
+                className="delete-customer-btn"
             >
                     <GoTrash color="#ba1c1c" />
             </button>

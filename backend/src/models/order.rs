@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc, NaiveDate};
-use super::customer::CustomerId;
 use super::product::ProductId;
 use serde::{Serialize, Deserialize};
 
@@ -17,7 +16,7 @@ pub struct OrderResponseItem {
 
 pub struct Order {
     pub id: OrderId, // unique order ID
-    pub customer_id: CustomerId, // ID of the customer who placed the order
+    pub customer_id: String, // ID of the customer who placed the order
     pub status: OrderStatus,
     pub items: Vec<OrderItem>, // vector of all products in the order
     pub order_time: DateTime<Utc>,
