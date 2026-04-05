@@ -3,6 +3,8 @@ import Page from "../components/Page";
 import { ClimbingBoxLoader } from "react-spinners";
 import type { OrderItem } from "../Types";
 import { orderService } from "../services/orderService";
+import "../styles/pages/OrdersPage.css";
+import AddNewOrderForm from "../components/forms/AddNewOrderForm";
 
 export default function OrdersPage() {
     const [loading, setLoading] = useState<boolean>(true);
@@ -28,8 +30,15 @@ export default function OrdersPage() {
     return (
         <Page title="Orders">
             <div className="content-wrapper">
-                <ClimbingBoxLoader color="#000" size={12} loading={loading} />
-                {!loading && orders.length === 0 && <p>No orders found.</p>}
+                <div className="orders-table-wrapper">
+                    <ClimbingBoxLoader color="#000" size={12} loading={loading} />
+                    {!loading && orders.length === 0 && <p>No orders found.</p>}
+                </div>
+                <div className="add-order-wrapper">
+                    <AddNewOrderForm
+                        onSuccess={() => console.log("Success")}
+                    />
+                </div>
             </div>
         </Page>
     );

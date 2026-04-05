@@ -1,0 +1,17 @@
+.content-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.orders-table-wrapper {
+    flex: 2;
+    border: 1px solid blue;
+}
+
+.add-order-wrapper {
+    flex: 1;
+    border: 1px solid red;
+}
