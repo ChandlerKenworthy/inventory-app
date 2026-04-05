@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 const ProductItemSchema = z.object({
-    id: z.coerce.number().min(1, "Must be at least 1"),
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(3, "Product name is required"),
     is_fragile: z.preprocess(
         (val) => val === "true" || val === true, 
         z.boolean()
@@ -11,6 +10,7 @@ const ProductItemSchema = z.object({
     width: z.coerce.number().min(0.1, "Must be at least 0.1 cm"),
     height: z.coerce.number().min(0.1, "Must be at least 0.1 cm"),
     depth: z.coerce.number().min(0.1, "Must be at least 0.1 cm"),
+    price: z.coerce.number().min(0.01, "Must be at least £0.01"),
 });
 
 export type NewProductItemFormData = z.infer<typeof ProductItemSchema>;

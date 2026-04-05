@@ -28,6 +28,7 @@ pub async fn get_products(
             width: row.get("width"),
             height: row.get("height"),
             depth: row.get("depth"),
+            price: row.get("price"),
         }
     }).collect();
 
@@ -36,7 +37,7 @@ pub async fn get_products(
 
 pub async fn get_product_details(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>
+    Path(id): Path<String>
 ) -> Result<Json<ProductResponseItem>, StatusCode> {
     let row = sqlx::query(
         "
@@ -44,7 +45,7 @@ pub async fn get_product_details(
         WHERE id = ?
         "
     )
-    .bind(id as i64)
+    .bind(id as String)
     .fetch_one(&state.db)
     .await;
 
@@ -58,6 +59,7 @@ pub async fn get_product_details(
                 width: row.get("width"),
                 height: row.get("height"),
                 depth: row.get("depth"),
+                price: row.get("price"),
             };
             Ok(Json(product))
         }
@@ -68,31 +70,32 @@ pub async fn get_product_details(
 pub async fn add_product(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<ProductResponseItem>
-) -> Result<Json<String>, StatusCode> {
+) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"
-        INSERT INTO products (id, name, is_fragile, weight, width, height, depth)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO products (id, name, is_fragile, weight, width, height, depth, price)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         "#
     )
-    .bind(payload.id as i64)
+    .bind(payload.id as String)
     .bind(payload.name)
     .bind(payload.is_fragile)
     .bind(payload.weight as f64)
     .bind(payload.width as f64)
     .bind(payload.height as f64)
     .bind(payload.depth as f64)
+    .bind(payload.price as f64)
     .execute(&state.db);
     
     match result.await {
-        Ok(_) => Ok(Json("Product added".to_string())),
+        Ok(_) => Ok(StatusCode::CREATED),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
 
 pub async fn delete_product(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>
+    Path(id): Path<String>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"
@@ -100,7 +103,7 @@ pub async fn delete_product(
         WHERE id = ?
         "#
     )
-    .bind(id as i64)
+    .bind(id as String)
     .execute(&state.db);
     
     match result.await {

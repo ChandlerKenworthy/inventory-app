@@ -26,14 +26,15 @@ export interface ServiceResponse<T> {
     data?: T;
 }
 
-export type ProductResponseItem = {
-  id: number,
+export type ProductItem = {
+  id: UUIDTypes,
   name: string,
   is_fragile: boolean,
   weight: number,
   width: number,
   height: number,
-  depth: number
+  depth: number,
+  price: number,
 }
 
 export type CustomerItem = {

@@ -47,7 +47,7 @@ pub async fn modify_inventory(
     .bind(payload.aisle as i64)
     .bind(payload.shelf as i64)
     .bind(payload.bin as i64)
-    .bind(payload.product_id as i64) // Match on the ID
+    .bind(payload.product_id as String) // Match on the ID
     .execute(&state.db);
     
     match result.await {
@@ -68,7 +68,7 @@ pub async fn update_inventory(
             quantity = inventory.quantity + excluded.quantity
         "#
     )
-    .bind(payload.product_id as i64)
+    .bind(payload.product_id as String)
     .bind(payload.quantity as i64)
     .bind(payload.aisle as i64)
     .bind(payload.shelf as i64)
@@ -89,7 +89,7 @@ pub async fn update_inventory(
 
 pub async fn delete_inventory_item(
     State(state): State<Arc<AppState>>,
-    Path(product_id): Path<i64>, // Extracts {id} from the URL
+    Path(product_id): Path<String>, // Extracts {id} from the URL
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"

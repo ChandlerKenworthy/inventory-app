@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc, NaiveDate};
-use super::product::ProductId;
 use serde::{Serialize, Deserialize};
 
 pub struct OrderId(pub u64);
@@ -25,7 +24,7 @@ pub struct Order {
 }
 
 pub struct OrderItem {
-    pub product_id: ProductId,
+    pub product_id: String,
     pub quantity: u32,
 }
 

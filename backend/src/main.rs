@@ -47,13 +47,14 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             is_fragile BOOLEAN NOT NULL DEFAULT FALSE,
             weight REAL NOT NULL,
             width REAL NOT NULL,
             height REAL NOT NULL,
-            depth REAL NOT NULL
+            depth REAL NOT NULL,
+            price REAL NOT NULL
         );
         "#
     )

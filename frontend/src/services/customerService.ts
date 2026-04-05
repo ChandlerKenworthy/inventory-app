@@ -6,7 +6,7 @@ import type { UUIDTypes } from "uuid";
 export const customerService = {
     async add(data: NewCustomerFormData): Promise<ServiceResponse<null>> {
         try {
-            const response = await fetch("/api/customers", {
+            const response = await fetch(CUSTOMERS_ENDPOINT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
