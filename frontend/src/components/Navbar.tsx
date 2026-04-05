@@ -1,11 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { GoContainer, GoHome, GoPackage, GoPencil, GoPerson, GoPulse, GoTag } from "react-icons/go";
+import { GoContainer, GoHome, GoPackage, GoPerson, GoPulse, GoTag } from "react-icons/go";
 import '../styles/components/Navbar.css';
 
 const links = [
   { to: "/",                 label: "Home",      Icon: GoHome      },
   { to: "/inventory",        label: "Inventory", Icon: GoContainer },
-  { to: "/update-inventory", label: "Modify",    Icon: GoPencil    },
   { to: "/customers",        label: "Customers", Icon: GoPerson    },
   { to: "/products",         label: "Products",  Icon: GoPackage   },
   { to: "/orders",           label: "Orders",    Icon: GoTag       },
