@@ -80,8 +80,6 @@ export default function InventoryPage() {
     }
   }
 
-  const modifyItemHandler = () => console.log("modify the them...");
-
   return (
     <Page title="Inventory">
       <div className="filters-wrapper">
@@ -147,7 +145,7 @@ export default function InventoryPage() {
           {sortedInventory.map((item: InventoryItem) => (
             <InventoryItemRow 
               item={item} 
-              key={item.product_id} 
+              key={item.product_id as string} 
               deleteItemHandler={deleteItemHandler}
               onUpdateSuccess={fetchInventory} />
           ))}

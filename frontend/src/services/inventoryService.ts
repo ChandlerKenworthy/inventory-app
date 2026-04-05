@@ -1,5 +1,5 @@
 import type { UUIDTypes } from "uuid";
-import type { ServiceResponse } from "../Types";
+import type { InventoryItem, ServiceResponse } from "../Types";
 import { INVENTORY_ENDPOINT } from "./constants";
 
 export const inventoryService = {
@@ -71,5 +71,40 @@ export const inventoryService = {
                 message: "Network error: " + error,
             };
         }
+    },
+
+    async modify(payload: InventoryItem): Promise<ServiceResponse<null>> {
+        try {
+            const response = await fetch("/api/modify_inventory", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const contentType = response.headers.get("content-type");
+            const rawData = contentType?.includes("application/json") 
+                ? await response.json() 
+                : await response.text();
+
+            if (!response.ok) {
+                const errorMessage = typeof rawData === 'object' ? rawData.error : rawData;
+                return {
+                    success: false,
+                    message: errorMessage || 'Failed to modify inventory item.'
+                };
+            }
+            return {
+                success: true,
+                message: 'Inventory item modified successfully.',
+                data: rawData
+            };
+        } catch(error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            };
+        }
     }
+
+
 };

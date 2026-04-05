@@ -7,13 +7,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InventoryItemSchema, { type NewInventoryItemFormData } from "../schema/InventoryItemSchema";
 import "../styles/components/InventoryItemRow.css";
+import type { UUIDTypes } from "uuid";
+import { inventoryService } from "../services/inventoryService";
 
 export default function InventoryItemRow(
     { item, deleteItemHandler, onUpdateSuccess } : 
     { 
         item: InventoryItem, 
-        deleteItemHandler: (id: number) => void,
-        onUpdateSuccess: (data: NewInventoryItemFormData) => void
+        deleteItemHandler: (id: UUIDTypes) => void,
+        onUpdateSuccess: () => void
     }
 ) {
     const [isModifying, setIsModifying] = useState<boolean>(false);
@@ -35,12 +37,12 @@ export default function InventoryItemRow(
     });
 
     const onSubmit = async (data: NewInventoryItemFormData) => {
-        await fetch("/api/modify_inventory", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(data)
-		});
-        onUpdateSuccess(data);
+        const response = await inventoryService.modify(data);
+        if (!response.success) {
+            alert("Failed to update inventory item: " + response.message);
+            return;
+        }
+        onUpdateSuccess();
         setIsModifying(false);
     };
 
