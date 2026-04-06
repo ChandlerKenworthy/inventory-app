@@ -3,6 +3,31 @@ import type { InventoryItem, ServiceResponse } from "../Types";
 import { INVENTORY_ENDPOINT } from "./constants";
 
 export const inventoryService = {
+    async get_all(): Promise<ServiceResponse<InventoryItem[]>> {
+        try {
+            const response = await fetch(INVENTORY_ENDPOINT);
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errorMessage = typeof data === 'object' ? data.error : data;
+                return {
+                    success: false,
+                    message: errorMessage || 'Failed to fetch inventory.'
+                };
+            }
+            return {
+                success: true,
+                message: "Inventory fetched successfully",
+                data: data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            }
+        }
+    },
+
     async add_product(id: UUIDTypes): Promise<ServiceResponse<null>> {
         try {
             const response = await fetch(INVENTORY_ENDPOINT, {
