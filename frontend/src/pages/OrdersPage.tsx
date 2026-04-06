@@ -30,15 +30,8 @@ export default function OrdersPage() {
     return (
         <Page title="Orders">
             <div className="content-wrapper">
-                <div className="orders-table-wrapper">
-                    <ClimbingBoxLoader color="#000" size={12} loading={loading} />
-                    {!loading && orders.length === 0 && <p>No orders found.</p>}
-                </div>
-                <div className="add-order-wrapper">
-                    <AddNewOrderForm
-                        onSuccess={() => console.log("Success")}
-                    />
-                </div>
+                <ClimbingBoxLoader color="#000" size={12} loading={loading} />
+                {!loading && orders.length === 0 && <p>No orders found.</p>}
             </div>
         </Page>
     );

@@ -1,32 +1,104 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import OrderItemSchema, { type NewOrderItemFormData } from "../../schema/OrderItemSchema";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
+import { GoPlus, GoTrash } from "react-icons/go";
+import type { CustomerItem, InventoryItem } from "../../Types";
 
 interface AddNewOrderProps {
     onSuccess: () => void;
+    products: InventoryItem[];
+    customers: CustomerItem[];
 }
 
-export default function AddNewOrderForm({ onSuccess }: AddNewOrderProps) {
+export default function AddNewOrderForm({ onSuccess, products, customers }: AddNewOrderProps) {
     const {
         register,
+        control,
         handleSubmit,
         reset,
-        formState: { errors },
+        watch,
+        formState: { errors }
     } = useForm<NewOrderItemFormData>({
         resolver: zodResolver(OrderItemSchema),
         mode: "onChange",
-        defaultValues: {
-            // TODO: No more magic, use central defaults
-        },
+        defaultValues: { 
+            customer_id: "",
+            items: [{ product_id: "uuidv4-placeholder", quantity: 1 }] 
+        }
     });
 
+    const { fields, append, remove } = useFieldArray({ control, name: "items" });
+
     const onSubmit = async (data: NewOrderItemFormData) => {
+        // Professional tip: Add a 'total_price' calculation here or on backend
         // TODO: call service to add new order
+        console.log("Submitting new order: ", data);
         reset(); // reset the form state
         onSuccess(); // call the onSuccess callback to trigger any parent updates
     };
 
     return (
-        <p>Add new order form goes here</p>
+        <form onSubmit={handleSubmit(onSubmit)} className="order-form">
+            <h3>Create New Order</h3>
+            
+            <div className="form-group">
+                <label>Select Customer</label>
+                <select {...register("customer_id")}>
+                    <option value="">-- Choose a Customer --</option>
+                    {customers.map(c => (
+                        <option key={c.id as string} value={c.id as string}>
+                            {c.first_name} {c.second_name}
+                        </option>
+                    ))}
+                </select>
+                {errors.customer_id && <span className="error">{errors.customer_id.message}</span>}
+            </div>
+
+            <hr />
+            <h4>Products</h4>
+            {fields.map((field, index) => {
+                // Watch the selected product to check its inventory
+                const selectedId = watch(`items.${index}.product_id`);
+                const productInStock = products.find(p => p.product_id === selectedId);
+                const maxStock = productInStock?.quantity || 0;
+
+                return (
+                    <div key={field.id} className="order-item-row">
+                        <select {...register(`items.${index}.product_id` as const)}>
+                            <option value="">Select Product</option>
+                            {products.map(p => (
+                                <option 
+                                    key={p.product_id as string} 
+                                    value={p.product_id as string} 
+                                    disabled={p.quantity <= 0}>
+                                    {p.product_id} ({p.quantity} in stock)
+                                </option>
+                            ))}
+                        </select>
+
+                        <input 
+                            type="number" 
+                            placeholder="Qty"
+                            {...register(`items.${index}.quantity` as const)} 
+                        />
+                        
+                        <button type="button" onClick={() => remove(index)}><GoTrash /></button>
+                        
+                        {/* Instant Inventory Validation Hint */}
+                        {maxStock <= 0 && selectedId && (
+                            <p className="error">Out of stock!</p>
+                        )}
+                    </div>
+                );
+            })}
+
+            <button type="button" className="btn-secondary" onClick={() => append({ product_id: "", quantity: 1 })}>
+                <GoPlus /> Add Product
+            </button>
+
+            <div className="form-actions">
+                <button type="submit" className="btn-primary">Place Order</button>
+            </div>
+        </form>
     );
 }
