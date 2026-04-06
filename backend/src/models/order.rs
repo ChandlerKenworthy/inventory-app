@@ -1,8 +1,6 @@
 use chrono::{DateTime, Utc, NaiveDate};
 use serde::{Serialize, Deserialize};
 
-pub struct OrderId(pub u64);
-
 #[derive(Serialize, Clone)]
 pub struct OrderResponseItem {
     pub id: u64,
@@ -13,8 +11,16 @@ pub struct OrderResponseItem {
     pub delivery_date: Option<String>,
 }
 
+#[derive(Serialize, Clone)]
+pub struct OrderItemRecord {
+    pub product_id: String,
+    pub product_name: Option<String>,
+    pub quantity: u32,
+    pub unit_price: f64,
+}
+
 pub struct Order {
-    pub id: OrderId, // unique order ID
+    pub id: String, // unique order ID
     pub customer_id: String, // ID of the customer who placed the order
     pub status: OrderStatus,
     pub items: Vec<OrderItem>, // vector of all products in the order

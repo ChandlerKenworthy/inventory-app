@@ -2,11 +2,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import OrderItemSchema, { type NewOrderItemFormData } from "../../schema/OrderItemSchema";
 import { useForm, useFieldArray } from "react-hook-form";
 import { GoPlus, GoTrash } from "react-icons/go";
-import type { CustomerItem, InventoryItem } from "../../Types";
+import type { CustomerItem, OrderItemRecord } from "../../Types";
 
 interface AddNewOrderProps {
     onSuccess: () => void;
-    products: InventoryItem[];
+    products: OrderItemRecord[];
     customers: CustomerItem[];
 }
 
@@ -71,7 +71,7 @@ export default function AddNewOrderForm({ onSuccess, products, customers }: AddN
                                     key={p.product_id as string} 
                                     value={p.product_id as string} 
                                     disabled={p.quantity <= 0}>
-                                    {p.product_id} ({p.quantity} in stock)
+                                    {p.product_name} ({p.quantity} in stock)
                                 </option>
                             ))}
                         </select>

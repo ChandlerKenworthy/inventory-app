@@ -4,7 +4,6 @@ import { ClimbingBoxLoader } from "react-spinners";
 import type { OrderItem } from "../Types";
 import { orderService } from "../services/orderService";
 import "../styles/pages/OrdersPage.css";
-import AddNewOrderForm from "../components/forms/AddNewOrderForm";
 
 export default function OrdersPage() {
     const [loading, setLoading] = useState<boolean>(true);

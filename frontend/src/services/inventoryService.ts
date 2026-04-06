@@ -1,5 +1,5 @@
 import type { UUIDTypes } from "uuid";
-import type { InventoryItem, ServiceResponse } from "../Types";
+import type { InventoryItem, OrderItemRecord, ServiceResponse } from "../Types";
 import { INVENTORY_ENDPOINT } from "./constants";
 
 export const inventoryService = {
@@ -18,6 +18,31 @@ export const inventoryService = {
             return {
                 success: true,
                 message: "Inventory fetched successfully",
+                data: data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            }
+        }
+    },
+
+    async get_in_stock_products(): Promise<ServiceResponse<OrderItemRecord[]>> {
+        try {
+            const response = await fetch(`${INVENTORY_ENDPOINT}/instock`);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                const errorMessage = typeof data === 'object' ? data.error : data;
+                return {
+                    success: false,
+                    message: errorMessage || 'Failed to fetch in-stock products.'
+                };
+            }
+            return {
+                success: true,
+                message: "In-stock products fetched successfully",
                 data: data
             };
         } catch (error) {

@@ -17,7 +17,7 @@ export enum OrderStatus {
 }
 
 export interface OrderItemRecord {
-    product_id: number;
+    product_id: UUIDTypes;
     product_name?: string; // Optional: added during the SQL JOIN
     quantity: number;
     unit_price: number;    // Always track the price at time of sale!
