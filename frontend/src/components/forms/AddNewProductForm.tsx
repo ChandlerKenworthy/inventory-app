@@ -7,13 +7,15 @@ import TextInput from "./TextInput";
 import NumberInput from "./NumberInput";
 import RadioInput from "./RadioInput";
 import type { APIResponse } from "../../Types";
+import { v4 as uuid } from "uuid";
+import { productService } from "../../services/productService";
 
 interface AddNewProductProps {
     onSuccess: () => void;
     setFeedback: (feedback: { type: APIResponse; message: string }) => void;
 }
 
-export default function AddNewProduct({ onSuccess, setFeedback }: AddNewProductProps) {
+export default function AddNewProductForm({ onSuccess, setFeedback }: AddNewProductProps) {
     const {
         register,
         handleSubmit,
@@ -28,31 +30,23 @@ export default function AddNewProduct({ onSuccess, setFeedback }: AddNewProductP
             weight: 0,
             width: 0,
             height: 0,
-            depth: 0
+            depth: 0,
+            price: 0.01,
         },
     });
 
     const onSubmit = async (data: NewProductItemFormData) => {
-        try {
-            const response = await fetch("/api/products", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-
-            const resp_data = await response.json();
-
-            if(!response.ok) {
-                setFeedback({ type: 'error', message: resp_data || 'Failed to add new product.' });
-            } else {
-                setFeedback({ type: 'success', message: resp_data || 'New product added successfully!' });
-            }
+        const sendData = {
+            ...data,
+            id: uuid()
+        }
+        const result = await productService.add(sendData);
+        if(result.success) {
             reset();
             onSuccess();
-        } catch (err) {
-            setFeedback({ type: 'error', message: 'Network error: ' + err });
+        } else {
+            setFeedback({ type: 'error', message: result.message || 'Failed to add new product.' });
         }
-        setTimeout(() => setFeedback({ type: null, message: '' }), 5000);
     };
 
     return (
@@ -62,12 +56,6 @@ export default function AddNewProduct({ onSuccess, setFeedback }: AddNewProductP
                 description="Product Name"
                 error={errors.name?.message}
                 {...register("name")}
-            />
-            <NumberInput 
-                label="id"
-                description="Product ID"
-                error={errors.id?.message}
-                {...register("id")}
             />
             <NumberInput 
                 label="weight"
@@ -92,6 +80,12 @@ export default function AddNewProduct({ onSuccess, setFeedback }: AddNewProductP
                 description="Product Depth (cm)"
                 error={errors.depth?.message}
                 {...register("depth")}
+            />
+            <NumberInput 
+                label="price"
+                description="Product Price (£)"
+                error={errors.price?.message}
+                {...register("price")}
             />
             <RadioInput 
                 label="is_fragile"

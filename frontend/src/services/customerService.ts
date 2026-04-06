@@ -1,11 +1,12 @@
 import { CUSTOMERS_ENDPOINT } from "./constants";
 import type { ServiceResponse } from "../Types";
 import type { NewCustomerFormData } from "../schema/CustomerSchema";
+import type { UUIDTypes } from "uuid";
 
 export const customerService = {
     async add(data: NewCustomerFormData): Promise<ServiceResponse<null>> {
         try {
-            const response = await fetch("/api/customers", {
+            const response = await fetch(CUSTOMERS_ENDPOINT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
@@ -37,7 +38,7 @@ export const customerService = {
         }
     },
 
-    async delete(id: number): Promise<ServiceResponse<null>> {
+    async delete(id: UUIDTypes): Promise<ServiceResponse<null>> {
         try {
             const response = await fetch(`${CUSTOMERS_ENDPOINT}/${id}`, {
                 method: 'DELETE',

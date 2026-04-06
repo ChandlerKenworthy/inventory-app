@@ -1,17 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Eq, PartialEq, Hash, Clone)]
-pub struct CustomerId(pub u64);
-
-#[derive(Serialize, Clone)]
-pub struct CustomerList {
-    pub customers: Vec<Customer>,
-}
-
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Customer {
     pub first_name: String, // first name of the customer e.g. "John"
     pub second_name: String, // second name of the customer e.g. "Smith"
     pub email: String,
-    pub id: u64, // unique customer ID
+    pub id: String, // uuidv4 string e.g. "550e8400-e29b-41d4-a716-446655440000"
 }

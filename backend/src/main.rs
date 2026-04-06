@@ -18,7 +18,7 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS inventory (
-            product_id INTEGER PRIMARY KEY,
+            product_id TEXT PRIMARY KEY,
             quantity INTEGER NOT NULL,
             aisle INTEGER,
             shelf INTEGER,
@@ -33,7 +33,7 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS customers (
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             first_name TEXT NOT NULL,
             second_name TEXT NOT NULL,
             email TEXT NOT NULL
@@ -47,13 +47,14 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             is_fragile BOOLEAN NOT NULL DEFAULT FALSE,
             weight REAL NOT NULL,
             width REAL NOT NULL,
             height REAL NOT NULL,
-            depth REAL NOT NULL
+            depth REAL NOT NULL,
+            price REAL NOT NULL
         );
         "#
     )
@@ -102,7 +103,7 @@ async fn main() {
         .route("/api/inventory", post(api::inventory_routes::update_inventory))
         .route("/api/modify_inventory", post(api::inventory_routes::modify_inventory))
         .route("/api/customers", get(api::customer_routes::get_customers))
-        .route("/api/customers", post(api::customer_routes::update_customers))
+        .route("/api/customers", post(api::customer_routes::add_new_customer))
         .route("/api/health", get(api::status_routes::get_status))
         .route("/api/products", get(api::product_routes::get_products))
         .route("/api/products", post(api::product_routes::add_product))

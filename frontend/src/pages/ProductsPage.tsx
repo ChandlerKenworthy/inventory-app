@@ -1,16 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
-import type { APIResponse, ProductResponseItem } from "../Types";
+import type { APIResponse, ProductItem } from "../Types";
 import "../styles/pages/ProductsPage.css"
 import { GoSearch, GoXCircle } from "react-icons/go";
-import AddNewProduct from "../components/forms/AddNewProduct";
+import AddNewProductForm from "../components/forms/AddNewProductForm";
 import ProductItemRow from "../components/ProductItemRow";
 import Page from "../components/Page";
 import FeedbackPopup from "../components/FeedbackPopup";
 import { productService } from "../services/productService";
 import { ClimbingBoxLoader } from "react-spinners";
+import type { UUIDTypes } from "uuid";
+import { inventoryService } from "../services/inventoryService";
 
 export default function ProductsPage() {
-    const [products, setProducts] = useState<ProductResponseItem[]>([]);
+    const [products, setProducts] = useState<ProductItem[]>([]);
     const [productIDSearchTerm, setProductIDSearchTerm] = useState<string | null>("");
     const [productNameSearchTerm, setProductNameSearchTerm] = useState<string | null>("");
     const [feedback, setFeedback] = useState<{ type: APIResponse, message: string }>({
@@ -36,7 +38,7 @@ export default function ProductsPage() {
         setLoading(false);
     }
 
-    const deleteProductHandler = async (id: number) => {
+    const deleteProductHandler = async (id: UUIDTypes) => {
         setLoading(true);
         const result = await productService.delete(id);
         setFeedback({
@@ -49,13 +51,19 @@ export default function ProductsPage() {
         setLoading(false);
     }
 
-    const addToInventoryHandler = async (id: number) => {
-        // No need to toggle loading state as this does not effect the product catalogue
-        const result = await productService.add(id);
-        setFeedback({
-            type: result.success ? 'success' : 'error',
-            message: result.message
-        });
+    const addToInventoryHandler = async (id: UUIDTypes) => {
+        const result = await inventoryService.add_product(id);
+        if(result.success) {
+            setFeedback({
+                type: 'success',
+                message: result.message
+            });
+        } else {
+            setFeedback({
+                type: 'error',
+                message: result.message
+            });
+        }
     }
 
     useEffect(() => {
@@ -65,8 +73,8 @@ export default function ProductsPage() {
     return (
         <Page title="Products Catalogue">
             {feedback.type && <FeedbackPopup feedback={feedback} onClose={() => setFeedback({ type: null, message: '' })} />}
-            <div className="content-wrapper">
-                <AddNewProduct onSuccess={() => fetchProducts()} setFeedback={setFeedback} />
+            <div className="products-page-content-wrapper">
+                <AddNewProductForm onSuccess={() => fetchProducts()} setFeedback={setFeedback} />
                 <div className="products-list">
                     <div className="search-fields">
                         <div className="sort-group">
@@ -110,14 +118,14 @@ export default function ProductsPage() {
                         <span>Weight (kg)</span>
                         <span>Dim. (W/H/D) (cm)</span>
                         <span>Is Fragile</span>
+                        <span>Price (£)</span>
                         <span>Add</span>
-                        <span>Modify</span>
                         <span>Delete</span>
                     </div>
                     <div className="products-table-body">
-                    {filteredProducts.map((product: ProductResponseItem) => (
+                    {filteredProducts.map((product: ProductItem) => (
                         <ProductItemRow 
-                            key={product.id} 
+                            key={product.id as string} 
                             product={product} 
                             deleteProductHandler={deleteProductHandler}
                             addToInventoryHandler={addToInventoryHandler}

@@ -28,10 +28,10 @@ pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<Custo
     Json(customers)
 }
 
-pub async fn update_customers(
+pub async fn add_new_customer(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<Customer>
-) -> Result<Json<String>, StatusCode> {
+) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"
         INSERT INTO customers (id, first_name, second_name, email)
@@ -42,28 +42,28 @@ pub async fn update_customers(
                 email = EXCLUDED.email
         "#
     )
-    .bind(payload.id as i64)
+    .bind(payload.id as String)
     .bind(payload.first_name as String)
     .bind(payload.second_name as String)
     .bind(payload.email as String)
     .execute(&state.db);
 
     match result.await {
-        Ok(_) => Ok(Json("Customer added".to_string())),
+        Ok(_) => Ok(StatusCode::CREATED),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
 
 pub async fn delete_customer(
     State(state): State<Arc<AppState>>,
-    Path(customer_id): Path<i64>, // Extracts {id} from the URL
+    Path(customer_id): Path<String>, // Extracts {id} from the URL
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"
         DELETE FROM customers WHERE id = ?
         "#
     )
-    .bind(customer_id as i64)
+    .bind(customer_id as String)
     .execute(&state.db);
 
     match result.await {

@@ -35,7 +35,7 @@ pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<Inven
 pub async fn modify_inventory(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateInventoryItem>
-) -> Result<Json<String>, StatusCode> {
+) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"
         UPDATE inventory
@@ -47,11 +47,11 @@ pub async fn modify_inventory(
     .bind(payload.aisle as i64)
     .bind(payload.shelf as i64)
     .bind(payload.bin as i64)
-    .bind(payload.product_id as i64) // Match on the ID
+    .bind(payload.product_id as String) // Match on the ID
     .execute(&state.db);
     
     match result.await {
-        Ok(_) => Ok(Json("Item modified".to_string())),
+        Ok(_) => Ok(StatusCode::OK),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
@@ -59,7 +59,7 @@ pub async fn modify_inventory(
 pub async fn update_inventory(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateInventoryItem>
-) -> Result<Json<String>, (StatusCode, Json<String>)> {
+) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"INSERT INTO inventory (product_id, quantity, aisle, shelf, bin)
             VALUES (?, ?, ?, ?, ?)
@@ -68,7 +68,7 @@ pub async fn update_inventory(
             quantity = inventory.quantity + excluded.quantity
         "#
     )
-    .bind(payload.product_id as i64)
+    .bind(payload.product_id as String)
     .bind(payload.quantity as i64)
     .bind(payload.aisle as i64)
     .bind(payload.shelf as i64)
@@ -76,20 +76,14 @@ pub async fn update_inventory(
     .execute(&state.db);
     
     match result.await {
-        Ok(_) => Ok(Json("Item added".to_string())),
-        Err(e) => {
-            eprintln!("Database error: {:?}", e); // Log the actual error for debugging
-            Err((
-                StatusCode::INTERNAL_SERVER_ERROR, 
-                Json("Database connection failed".to_string())
-            ))
-        }
+        Ok(_) => Ok(StatusCode::OK),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
 
 pub async fn delete_inventory_item(
     State(state): State<Arc<AppState>>,
-    Path(product_id): Path<i64>, // Extracts {id} from the URL
+    Path(product_id): Path<String>, // Extracts {id} from the URL
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r#"

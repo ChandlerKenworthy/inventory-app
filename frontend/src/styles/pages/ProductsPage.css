@@ -19,7 +19,7 @@
 }
 
 /* Split the form into the top half and table into the bottom half */
-.content-wrapper {
+.products-page-content-wrapper {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;

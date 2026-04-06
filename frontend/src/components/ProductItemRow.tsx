@@ -1,14 +1,15 @@
-import type { ProductResponseItem } from "../Types"
-import { GoPlusCircle, GoPencil, GoTrash } from "react-icons/go";
+import type { ProductItem } from "../Types"
+import { GoPlusCircle, GoTrash } from "react-icons/go";
 import "../styles/components/ProductItemRow.css";
 import { Link } from "react-router-dom";
+import type { UUIDTypes } from "uuid";
 
 export default function ProductItemRow(
     { product, deleteProductHandler, addToInventoryHandler } : 
     { 
-        product: ProductResponseItem, 
-        deleteProductHandler: (id: number) => void,
-        addToInventoryHandler: (id: number) => void,
+        product: ProductItem, 
+        deleteProductHandler: (id: UUIDTypes) => void,
+        addToInventoryHandler: (id: UUIDTypes) => void,
     }) {
     return (
         <div className="product-table-row">
@@ -19,22 +20,16 @@ export default function ProductItemRow(
                 {product.id}
             </Link>
             <span>{product.name}</span>
-            <span>{product.weight}</span>
+            <span>{product.weight.toFixed(2)}</span>
             <span>{product.width} x {product.height} x {product.depth}</span>
             <span>{product.is_fragile ? "Yes" : "No"}</span>
+            <span>£{product.price.toFixed(2)}</span>
             <button
                 type="button"
                 onClick={() => addToInventoryHandler(product.id)}
                 className="modify-delete"
             >
                 <GoPlusCircle />
-            </button>
-            <button
-                type="button"
-                onClick={() => console.log("Modify product")}
-                className="modify-delete"
-            >
-                <GoPencil />
             </button>
             <button 
                 type="button"
