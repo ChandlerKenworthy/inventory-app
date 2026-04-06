@@ -1,8 +1,8 @@
-import type { OrderItem, ServiceResponse } from "../Types";
+import type { Order, ServiceResponse } from "../Types";
 import { ORDERS_ENDPOINT } from "./constants";
 
 export const orderService = {
-    async get_orders(): Promise<ServiceResponse<OrderItem[]>> {
+    async get_orders(): Promise<ServiceResponse<Order[]>> {
         try {
             const response = await fetch(ORDERS_ENDPOINT);
             const data = await response.json();

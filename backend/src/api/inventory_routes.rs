@@ -77,7 +77,7 @@ pub async fn update_inventory(
     
     match result.await {
         Ok(_) => Ok(StatusCode::OK),
-        Err(e) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
 
