@@ -112,6 +112,7 @@ async fn main() {
         .route("/api/products/{id}", get(api::product_routes::get_product_details))
         .route("/api/customers/{id}", delete(api::customer_routes::delete_customer))
         .route("/api/orders", get(api::order_routes::get_orders))
+        .route("/api/query", post(api::special_routes::run_custom_query))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
