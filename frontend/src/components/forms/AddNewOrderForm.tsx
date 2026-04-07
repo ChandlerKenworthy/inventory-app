@@ -32,7 +32,7 @@ export default function AddNewOrderForm({ onSuccess, products, customers }: AddN
     const onSubmit = async (data: NewOrderItemFormData) => {
         // Professional tip: Add a 'total_price' calculation here or on backend
         // TODO: call service to add new order
-        console.log("Submitting new order: ", data);
+        console.log("Submitting new order: ", JSON.stringify(data));
         reset(); // reset the form state
         onSuccess(); // call the onSuccess callback to trigger any parent updates
     };
@@ -71,7 +71,7 @@ export default function AddNewOrderForm({ onSuccess, products, customers }: AddN
                                     key={p.product_id as string} 
                                     value={p.product_id as string} 
                                     disabled={p.quantity <= 0}>
-                                    {p.product_name} ({p.quantity} in stock)
+                                    {p.product_name} ({p.quantity} in stock) (£{p.unit_price.toFixed(2)})
                                 </option>
                             ))}
                         </select>
@@ -97,6 +97,7 @@ export default function AddNewOrderForm({ onSuccess, products, customers }: AddN
             </button>
 
             <div className="form-actions">
+                <p>Order total: £</p>
                 <button type="submit" className="btn-primary">Place Order</button>
             </div>
         </form>

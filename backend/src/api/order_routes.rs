@@ -1,8 +1,27 @@
 use crate::state::AppState;
 use std::sync::Arc;
 use crate::models::order::{OrderResponseItem};
-use axum::{Json, extract::State};
+use axum::{Json, extract::State, http::StatusCode};
 use sqlx::Row;
+
+pub async fn create_order(
+    State(state): State<Arc<AppState>>,
+    //Json(payload): Json<Not sure what the type should be here>
+) -> Result<StatusCode, StatusCode> {
+    //let result = sqlx::query(
+    //    r#"
+    //    INSERT INTO orders ......
+    //    "#
+    //)
+    //.bind(...)
+    //.execute(&state.db);
+
+    //match result.await {
+    //    Ok(_) => Ok(StatusCode::CREATED),
+    //    Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    //}
+    Ok(StatusCode::CREATED)
+}
 
 pub async fn get_orders(
     State(state): State<Arc<AppState>>
