@@ -111,6 +111,7 @@ async fn main() {
         .route("/api/inventory/{id}", delete(api::inventory_routes::delete_inventory_item))
         .route("/api/products/{id}", delete(api::product_routes::delete_product))
         .route("/api/products/{id}", get(api::product_routes::get_product_details))
+        .route("/api/customers/{id}", get(api::customer_routes::get_customer_details))
         .route("/api/customers/{id}", delete(api::customer_routes::delete_customer))
         .route("/api/orders", get(api::order_routes::get_orders))
         .route("/api/orders", post(api::order_routes::create_order))

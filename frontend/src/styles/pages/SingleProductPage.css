@@ -1,0 +1,23 @@
+.product-card {
+    display: flex;
+    gap: 2rem;
+}
+
+.product-details-wrapper h3 {
+    margin-top: 0;
+}
+
+.product-main-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    gap: 2rem;
+}
+
+.product-dummy-img {
+    width: 400px;
+    height: 400px;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+}

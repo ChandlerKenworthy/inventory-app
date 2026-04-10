@@ -2,6 +2,7 @@ import { CUSTOMERS_ENDPOINT } from "./constants";
 import type { CustomerItem, ServiceResponse } from "../Types";
 import type { NewCustomerFormData } from "../schema/CustomerSchema";
 import type { UUIDTypes } from "uuid";
+import type { CustomerItem } from "../Types";
 
 export const customerService = {
     async get_all(): Promise<ServiceResponse<CustomerItem[]>> {
@@ -96,4 +97,29 @@ export const customerService = {
             };
         }
     },
+
+    async get(id: UUIDTypes): Promise<ServiceResponse<CustomerItem>> {
+        try {
+            const response = await fetch(`${CUSTOMERS_ENDPOINT}/${id}`);
+            const data = await response.json() 
+            if (!response.ok) {
+                const errorMessage = typeof data === 'object' ? data.error : data;
+                return {
+                    success: false,
+                    message: errorMessage || 'Failed to fetch customer'
+                };
+            }
+            return {
+                success: true,
+                message: 'Customer fetched successfully',
+                data: data
+            };
+
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            }
+        }
+    }
 }
