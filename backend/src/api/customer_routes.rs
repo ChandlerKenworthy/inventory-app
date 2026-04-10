@@ -9,6 +9,32 @@ use sqlx::Row;
 use crate::models::customer::{Customer};
 use crate::state::AppState;
 
+pub async fn get_customer_details(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>
+) -> Result<Json<Customer>, StatusCode> {
+    let row = sqlx::query(
+        r#"
+        SELECT * FROM customers
+        WHERE id = ?
+        "#
+    ).bind(id as String).fetch_one(&state.db).await;
+
+    match row {
+        Ok(row) => {
+            let customer = Customer {
+                id: row.get("id"),
+                first_name: row.get("first_name"),
+                second_name: row.get("second_name"),
+                email: row.get("email"),
+            };
+            Ok(Json(customer))
+        }
+        Err(sqlx::Error::RowNotFound) => Err(StatusCode::NOT_FOUND),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
 pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<Customer>> {
 
     let rows = sqlx::query(

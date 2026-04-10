@@ -2,7 +2,7 @@ use serde::{Deserialize};
 use serde_json::{Map, Value};
 use axum::{extract::State, Json, http::StatusCode};
 use std::sync::Arc;
-use sqlx::{Column, Row, TypeInfo, sqlite::SqliteValueRef, ValueRef};
+use sqlx::{Column, Row, TypeInfo, ValueRef};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
