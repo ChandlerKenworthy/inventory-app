@@ -9,6 +9,7 @@ import SingleProductPage from "./pages/SingleProductPage";
 import NewOrderPage from "./pages/NewOrderPage";
 import CustomQueryPage from "./pages/CustomQueryPage";
 import SingleCustomerPage from "./pages/SingleCustomerPage";
+import SingleOrderPage from "./pages/SingleOrderPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/new" element={<NewOrderPage />} />
         <Route path="/status" element={<StatusPage />} />
+        <Route path="/orders/:id" element={<SingleOrderPage />} />
       </Routes>
     </BrowserRouter>
   );
