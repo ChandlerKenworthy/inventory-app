@@ -3,6 +3,7 @@ import OrderItemSchema, { type NewOrderItemFormData } from "../../schema/OrderIt
 import { useForm, useFieldArray } from "react-hook-form";
 import { GoPlus, GoTrash } from "react-icons/go";
 import type { CustomerItem, OrderItemRecord } from "../../Types";
+import { orderService } from "../../services/orderService";
 
 interface AddNewOrderProps {
     onSuccess: () => void;
@@ -30,11 +31,13 @@ export default function AddNewOrderForm({ onSuccess, products, customers }: AddN
     const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
     const onSubmit = async (data: NewOrderItemFormData) => {
-        // Professional tip: Add a 'total_price' calculation here or on backend
-        // TODO: call service to add new order
-        console.log("Submitting new order: ", JSON.stringify(data));
+        const response = await orderService.send_order(data);
         reset(); // reset the form state
-        onSuccess(); // call the onSuccess callback to trigger any parent updates
+        if (response.success) {
+            onSuccess(); // call the onSuccess callback to trigger any parent updates
+        } else {
+            alert("Failed to place order: " + response.message);
+        }
     };
 
     return (

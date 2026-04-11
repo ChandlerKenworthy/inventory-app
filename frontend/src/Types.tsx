@@ -23,16 +23,23 @@ export interface OrderItemRecord {
     unit_price: number;    // Always track the price at time of sale!
 }
 
+export interface OrderBasicResponse {
+  id: UUIDTypes;
+  customer_id: UUIDTypes;
+  status: OrderStatus;
+  total_price: number;
+  created_at: string;
+}
+
 export interface Order {
-    id: number;
-    customer_id: number;
-    customer_name?: string; // Optional: added during the SQL JOIN
-    items: OrderItemRecord[];
-    status: OrderStatus;    // Use an Enum for readability
-    total_price: number;
-    created_at: string;
-    delivery_date: string | null;
-    tracking_number?: string;
+  id: UUIDTypes;
+  customer_id: UUIDTypes;
+  items: OrderItemRecord[];
+  status: OrderStatus;
+  total_price: number;
+  created_at: string;
+  delivery_date: string | null;
+  tracking_number?: string;
 }
 
 export interface ServiceResponse<T> {

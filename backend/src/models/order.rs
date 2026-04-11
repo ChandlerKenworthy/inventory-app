@@ -3,12 +3,11 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Clone)]
 pub struct OrderResponseItem {
-    pub id: u64,
-    pub customer_id: u64,
+    pub id: String,
+    pub customer_id: String,
     pub status: u8,
-    //pub items: Vec<OrderItem>,
     pub order_time: String,
-    pub delivery_date: Option<String>,
+    pub total_price: f64
 }
 
 #[derive(Serialize, Clone)]
@@ -20,8 +19,8 @@ pub struct OrderItemRecord {
 }
 
 pub struct Order {
-    pub id: String, // unique order ID
-    pub customer_id: String, // ID of the customer who placed the order
+    pub id: String, // unique order ID (uuidv4)
+    pub customer_id: String, // ID of the customer who placed the order (uuidv4)
     pub status: OrderStatus,
     pub items: Vec<OrderItem>, // vector of all products in the order
     pub order_time: DateTime<Utc>,

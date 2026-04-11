@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import Page from "../components/Page";
 import { ClimbingBoxLoader } from "react-spinners";
-import type { OrderItem } from "../Types";
+import type { OrderBasicResponse } from "../Types";
 import { orderService } from "../services/orderService";
 import "../styles/pages/OrdersPage.css";
 
 export default function OrdersPage() {
     const [loading, setLoading] = useState<boolean>(true);
-    const [orders, setOrders] = useState<OrderItem[]>([]);
+    const [orders, setOrders] = useState<OrderBasicResponse[]>([]);
 
     const fetchOrders = async () => {
         setLoading(true);
@@ -31,6 +31,7 @@ export default function OrdersPage() {
             <div className="content-wrapper">
                 <ClimbingBoxLoader color="#000" size={12} loading={loading} />
                 {!loading && orders.length === 0 && <p>No orders found.</p>}
+                {!loading && orders.length && <p>{JSON.stringify(orders)}</p>}
             </div>
         </Page>
     );
