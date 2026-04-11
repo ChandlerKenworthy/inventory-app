@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
 import Page from "../components/Page";
 import { ClimbingBoxLoader } from "react-spinners";
-import type { OrderBasicResponse } from "../Types";
+import type { OrderResponse } from "../Types";
 import { orderService } from "../services/orderService";
 import "../styles/pages/OrdersPage.css";
 
 export default function OrdersPage() {
     const [loading, setLoading] = useState<boolean>(true);
-    const [orders, setOrders] = useState<OrderBasicResponse[]>([]);
+    const [orders, setOrders] = useState<OrderResponse[]>([]);
 
     const fetchOrders = async () => {
         setLoading(true);
-        // call to services layer here
         const response = await orderService.get_orders();
         if (response.success && response.data) {
             setOrders(response.data);
@@ -31,7 +30,9 @@ export default function OrdersPage() {
             <div className="content-wrapper">
                 <ClimbingBoxLoader color="#000" size={12} loading={loading} />
                 {!loading && orders.length === 0 && <p>No orders found.</p>}
-                {!loading && orders.length && <p>{JSON.stringify(orders)}</p>}
+                <pre style={{ background: '#f4f4f4', padding: '1rem' }}>
+                    {JSON.stringify(orders, null, 2)}
+                </pre>
             </div>
         </Page>
     );

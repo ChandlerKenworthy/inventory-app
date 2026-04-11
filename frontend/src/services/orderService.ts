@@ -1,29 +1,51 @@
+import type { UUIDTypes } from "uuid";
 import type { NewOrderItemFormData } from "../schema/OrderItemSchema";
-import type { Order, OrderBasicResponse, ServiceResponse } from "../Types";
+import type { OrderResponse, ServiceResponse } from "../Types";
 import { ORDERS_ENDPOINT } from "./constants";
 
 export const orderService = {
-    async get_orders(): Promise<ServiceResponse<OrderBasicResponse[]>> {
-        /* This is a watered down version currently:
-        export interface OrderBasicResponse {
-          id: UUIDTypes;
-          customer_id: UUIDTypes;
-          status: OrderStatus;
-          total_price: number;
-          created_at: string;
-        }
-        */
-
+    async get_order(id: UUIDTypes): Promise<ServiceResponse<OrderResponse>> {
         try {
-            const response = await fetch(ORDERS_ENDPOINT);
+            const response = await fetch(`${ORDERS_ENDPOINT}/${id}`, {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json'},
+            });
             const data = await response.json();
 
             if (!response.ok) {
-                const errorMessage = typeof data === 'object' ? data.error : data;
                 return {
                     success: false,
-                    message: errorMessage || 'Failed to add product to inventory.'
-                };
+                    message: "Failed to fetch order.",
+                }
+            }
+            return {
+                success: true,
+                message: "Order fetched successfully",
+                data: data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+                data: undefined
+            };
+        }
+    },
+
+    async get_orders(): Promise<ServiceResponse<OrderResponse[]>> {
+        try {
+            const response = await fetch(ORDERS_ENDPOINT, {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json'},
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    message: "Failed to fetch orders.",
+                    data: undefined
+                }
             }
             return {
                 success: true,

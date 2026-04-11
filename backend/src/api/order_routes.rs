@@ -1,23 +1,10 @@
 use crate::state::AppState;
 use std::sync::Arc;
-use crate::models::order::{OrderResponseItem};
-use axum::{Json, extract::State, http::StatusCode};
+use crate::models::order::{CreateOrderPayload, OrderResponse, OrderItemResponse};
+use axum::{Json, extract::State, http::StatusCode, extract::Path};
 use sqlx::{Row};
-use serde::{Deserialize};
 use uuid::Uuid;
 use chrono::Utc;
-
-#[derive(Deserialize)]
-pub struct CreateOrderPayload {
-    pub customer_id: String,
-    pub items: Vec<OrderItemInput>,
-}
-
-#[derive(Deserialize)]
-pub struct OrderItemInput {
-    pub product_id: String,
-    pub quantity: i64,
-}
 
 pub async fn create_order(
     State(state): State<Arc<AppState>>,
@@ -125,23 +112,96 @@ pub async fn create_order(
 
 pub async fn get_orders(
     State(state): State<Arc<AppState>>
-) -> Json<Vec<OrderResponseItem>> {
+) -> Result<Json<Vec<OrderResponse>>, (StatusCode, Json<String>)> {
+    // Join orders and order_items to get all details in one query
     let rows = sqlx::query(
         r#"
-        SELECT id, customer_id, status, created_at, total_price FROM orders
+        SELECT 
+            o.id, o.customer_id, o.status, o.created_at, o.total_price,
+            oi.product_id, oi.quantity, oi.unit_price
+        FROM orders o
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        ORDER BY o.created_at DESC
         "#
-    ).fetch_all(&state.db)
-    .await.unwrap();
+    )
+    .fetch_all(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
-    let orders = rows.into_iter().map(|row| {
-        OrderResponseItem {
-            id: row.get("id"),
+    // Since one order has multiple rows (one per item), group them
+    let mut orders_map: std::collections::BTreeMap<String, OrderResponse> = std::collections::BTreeMap::new();
+
+    for row in rows {
+        let order_id: String = row.get("id");
+
+        let entry = orders_map.entry(order_id.clone()).or_insert_with(|| OrderResponse {
+            id: order_id,
             customer_id: row.get("customer_id"),
             status: row.get("status"),
-            order_time: row.get("created_at"),
+            created_at: row.get("created_at"),
             total_price: row.get("total_price"),
-        }
-    }).collect();
+            items: Vec::new(),
+        });
 
-    Json(orders)
+        // Add the item info if it exists (LEFT JOIN might return nulls for empty orders)
+        if let Ok(prod_id) = row.try_get::<String, _>("product_id") {
+            entry.items.push(OrderItemResponse {
+                product_id: prod_id,
+                quantity: row.get("quantity"),
+                unit_price: row.get("unit_price"),
+            });
+        }
+    }
+    Ok(Json(orders_map.into_values().collect()))
+}
+
+pub async fn get_order_details(
+    State(state): State<Arc<AppState>>,
+    Path(order_id): Path<String>
+) -> Result<Json<OrderResponse>, (StatusCode, Json<String>)> {
+    // Join orders and order_items to get all details in one query
+    let rows = sqlx::query(
+        r#"
+        SELECT 
+            o.id, o.customer_id, o.status, o.created_at, o.total_price,
+            oi.product_id, oi.quantity, oi.unit_price
+        FROM orders o
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        WHERE o.id = ?
+        ORDER BY o.created_at DESC
+        "#
+    )
+    .bind(&order_id)
+    .fetch_all(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
+
+    if rows.is_empty() {
+        return Err((StatusCode::NOT_FOUND, Json("Order not found".into())));
+    }
+
+    // Initialize the order from the first row
+    let first = &rows[0];
+    let mut order = OrderResponse {
+        id: first.get("id"),
+        customer_id: first.get("customer_id"),
+        status: first.get("status"),
+        created_at: first.get("created_at"),
+        total_price: first.get("total_price"),
+        items: Vec::new(),
+    };
+
+    // Collect all items from the result set
+    for row in rows {
+        // try_get ensures we don't crash if an order exists but has 0 items
+        if let Ok(Some(prod_id)) = row.try_get::<Option<String>, _>("product_id") {
+            order.items.push(OrderItemResponse {
+                product_id: prod_id,
+                quantity: row.get("quantity"),
+                unit_price: row.get("unit_price"),
+            });
+        }
+    }
+
+    Ok(Json(order))
 }

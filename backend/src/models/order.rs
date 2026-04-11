@@ -1,16 +1,36 @@
 use chrono::{DateTime, Utc, NaiveDate};
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Clone)]
-pub struct OrderResponseItem {
-    pub id: String,
+#[derive(Deserialize)] // Used when making new orders
+pub struct CreateOrderPayload {
     pub customer_id: String,
-    pub status: u8,
-    pub order_time: String,
-    pub total_price: f64
+    pub items: Vec<OrderItemInput>,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Deserialize)] // Used when making new orders
+pub struct OrderItemInput {
+    pub product_id: String,
+    pub quantity: i64,
+}
+
+#[derive(Serialize)] // used when returning orders to the frontend
+pub struct OrderResponse {
+    pub id: String,
+    pub customer_id: String,
+    pub status: i32,
+    pub created_at: String,
+    pub total_price: f64,
+    pub items: Vec<OrderItemResponse>,
+}
+
+#[derive(Serialize)] // used in OrderResponse to return the line items for an order
+pub struct OrderItemResponse {
+    pub product_id: String,
+    pub quantity: i64,
+    pub unit_price: f64,
+}
+
+#[derive(Serialize, Clone)] // used in inventory_routes (???)
 pub struct OrderItemRecord {
     pub product_id: String,
     pub product_name: Option<String>,

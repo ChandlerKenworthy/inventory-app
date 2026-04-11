@@ -16,19 +16,26 @@ export enum OrderStatus {
     Cancelled = 4
 }
 
+export interface OrderItemResponse { // used
+    product_id: string;
+    quantity: number;
+    unit_price: number;
+}
+
+export interface OrderResponse { // used
+    id: string;
+    customer_id: string;
+    status: number;
+    created_at: string;
+    total_price: number;
+    items: OrderItemResponse[];
+}
+
 export interface OrderItemRecord {
     product_id: UUIDTypes;
     product_name?: string; // Optional: added during the SQL JOIN
     quantity: number;
     unit_price: number;    // Always track the price at time of sale!
-}
-
-export interface OrderBasicResponse {
-  id: UUIDTypes;
-  customer_id: UUIDTypes;
-  status: OrderStatus;
-  total_price: number;
-  created_at: string;
 }
 
 export interface Order {
