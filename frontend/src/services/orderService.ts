@@ -1,6 +1,6 @@
 import type { UUIDTypes } from "uuid";
 import type { NewOrderItemFormData } from "../schema/OrderItemSchema";
-import type { OrderResponse, ServiceResponse } from "../Types";
+import type { OrderResponse, OrderSummaryResponse, ServiceResponse } from "../Types";
 import { ORDERS_ENDPOINT } from "./constants";
 
 export const orderService = {
@@ -21,6 +21,35 @@ export const orderService = {
             return {
                 success: true,
                 message: "Order fetched successfully",
+                data: data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+                data: undefined
+            };
+        }
+    },
+
+    async get_orders_summary(): Promise<ServiceResponse<OrderSummaryResponse[]>> {
+        try {
+            const response = await fetch(`${ORDERS_ENDPOINT}/summary`, {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json'},
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    message: "Failed to fetch order summaries.",
+                    data: undefined
+                }
+            }
+            return {
+                success: true,
+                message: "Order summaries fetched successfully",
                 data: data
             };
         } catch (error) {

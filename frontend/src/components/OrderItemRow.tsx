@@ -1,11 +1,11 @@
-import type { OrderResponse } from "../Types"
+import type { OrderSummaryResponse } from "../Types"
 import { Link } from "react-router-dom";
 import "../styles/components/OrderItemRow.css";
 
 export default function OrderItemRow(
     { order } : 
     { 
-        order: OrderResponse, 
+        order: OrderSummaryResponse, 
     }) {
     return (
         <div className="order-table-row">
@@ -24,7 +24,7 @@ export default function OrderItemRow(
             <span>{order.status}</span>
             <span>{order.created_at}</span>
             <span>£{order.total_price.toFixed(2)}</span>
-            <span>?</span>
+            <span>{order.number_of_items}</span>
 
         </div>
     )

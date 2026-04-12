@@ -30,6 +30,16 @@ pub struct OrderItemResponse {
     pub unit_price: f64,
 }
 
+#[derive(Serialize)] // used when returning order summaries to the frontend
+pub struct OrderSummaryResponse {
+    pub id: String,
+    pub customer_id: String,
+    pub status: i32,
+    pub created_at: String,
+    pub total_price: f64,
+    pub number_of_items: i64,
+}
+
 #[derive(Serialize, Clone)] // used in inventory_routes (???)
 pub struct OrderItemRecord {
     pub product_id: String,

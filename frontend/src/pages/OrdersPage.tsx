@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import Page from "../components/Page";
 import { ClimbingBoxLoader } from "react-spinners";
-import type { OrderResponse } from "../Types";
+import type { OrderSummaryResponse } from "../Types";
 import { orderService } from "../services/orderService";
 import OrderItemRow from "../components/OrderItemRow";
 import "../styles/pages/OrdersPage.css";
 
 export default function OrdersPage() {
     const [loading, setLoading] = useState<boolean>(true);
-    const [orders, setOrders] = useState<OrderResponse[]>([]);
+    const [orders, setOrders] = useState<OrderSummaryResponse[]>([]);
 
     const fetchOrders = async () => {
         setLoading(true);
-        const response = await orderService.get_orders();
+        const response = await orderService.get_orders_summary();
         if (response.success && response.data) {
             setOrders(response.data);
         } else {
@@ -42,7 +42,7 @@ export default function OrdersPage() {
                             <span># Items</span>
                         </div>
                         <div className="orders-table-body">
-                        {orders.map((order: OrderResponse) => (
+                        {orders.map((order: OrderSummaryResponse) => (
                             <OrderItemRow 
                                 key={order.id as string} 
                                 order={order} 

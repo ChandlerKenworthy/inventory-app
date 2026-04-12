@@ -1,6 +1,6 @@
 use crate::state::AppState;
 use std::sync::Arc;
-use crate::models::order::{CreateOrderPayload, OrderResponse, OrderItemResponse};
+use crate::models::order::{CreateOrderPayload, OrderResponse, OrderSummaryResponse, OrderItemResponse};
 use axum::{Json, extract::State, http::StatusCode, extract::Path};
 use sqlx::{Row};
 use uuid::Uuid;
@@ -153,6 +153,36 @@ pub async fn get_orders(
         }
     }
     Ok(Json(orders_map.into_values().collect()))
+}
+
+pub async fn get_orders_summary(
+    State(state): State<Arc<AppState>>
+) -> Result<Json<Vec<OrderSummaryResponse>>, (StatusCode, Json<String>)> {
+    let rows = sqlx::query(
+        r#"
+        SELECT 
+            o.id, o.customer_id, o.status, o.created_at, o.total_price, SUM(oi.quantity) as number_of_items
+        FROM orders o
+        LEFT JOIN order_items oi ON o.id = oi.order_id
+        ORDER BY o.created_at DESC
+        "#
+    )
+    .fetch_all(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
+
+    let orders_summary: Vec<OrderSummaryResponse> = rows.into_iter().map(|row| {
+        OrderSummaryResponse {
+            id: row.get("id"),
+            customer_id: row.get("customer_id"),
+            status: row.get("status"),
+            created_at: row.get("created_at"),
+            total_price: row.get("total_price"),
+            number_of_items: row.get("number_of_items"), // TODO: Calculate actual number of items
+        }
+    }).collect();
+
+    Ok(Json(orders_summary))
 }
 
 pub async fn get_order_details(

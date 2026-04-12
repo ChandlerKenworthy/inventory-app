@@ -31,6 +31,15 @@ export interface OrderResponse { // used
     items: OrderItemResponse[];
 }
 
+export interface OrderSummaryResponse {
+    id: string;
+    customer_id: string;
+    status: number;
+    created_at: string;
+    total_price: number;
+    number_of_items: number;
+} // used
+
 export interface OrderItemRecord {
     product_id: UUIDTypes;
     product_name?: string; // Optional: added during the SQL JOIN
