@@ -1,10 +1,4 @@
-use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-
-#[derive(Serialize, Clone)]
-pub struct Inventory {
-    pub stock: HashMap<String, InventoryItem>,
-}
 
 #[derive(Serialize, Clone)]
 pub struct InventoryItem {

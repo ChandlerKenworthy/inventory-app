@@ -7,7 +7,31 @@ use axum::{
 use std::sync::Arc;
 use sqlx::Row;
 use crate::models::inventory::{InventoryResponseItem, CreateInventoryItem};
+use crate::models::order::OrderItemRecord;
 use crate::state::AppState;
+
+pub async fn get_instock_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<OrderItemRecord>> {
+    let rows = sqlx::query(
+        r#"
+        SELECT i.product_id, p.name AS product_name, i.quantity, p.price AS unit_price
+        FROM inventory i
+        JOIN products p ON i.product_id = p.id
+        WHERE i.quantity > 0
+        "#
+    ).fetch_all(&state.db)
+    .await.unwrap();
+
+    let items = rows.into_iter().map(|row| {
+        OrderItemRecord {
+            product_id: row.get("product_id"),
+            product_name: row.get("product_name"),
+            quantity: row.get("quantity"),
+            unit_price: row.get("unit_price"),
+        }
+    }).collect();
+
+    Json(items)
+}
 
 pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<InventoryResponseItem>> {
 

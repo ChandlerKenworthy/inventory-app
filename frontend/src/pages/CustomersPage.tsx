@@ -19,9 +19,17 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     setLoading(true);
-    const res = await fetch("/api/customers");
-    const data = await res.json();
-    setCustomers(data);
+    const result = await customerService.get_all();
+    if (!result.success) {
+        setFeedback({
+            type: 'error',
+            message: result.message
+        });
+        setCustomers([]);
+        setLoading(false);
+        return;
+    }
+    setCustomers(result.data);
     setLoading(false);
   };
 

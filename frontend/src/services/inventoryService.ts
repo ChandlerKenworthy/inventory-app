@@ -1,8 +1,58 @@
 import type { UUIDTypes } from "uuid";
-import type { InventoryItem, ServiceResponse } from "../Types";
+import type { InventoryItem, OrderItemRecord, ServiceResponse } from "../Types";
 import { INVENTORY_ENDPOINT } from "./constants";
 
 export const inventoryService = {
+    async get_all(): Promise<ServiceResponse<InventoryItem[]>> {
+        try {
+            const response = await fetch(INVENTORY_ENDPOINT);
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errorMessage = typeof data === 'object' ? data.error : data;
+                return {
+                    success: false,
+                    message: errorMessage || 'Failed to fetch inventory.'
+                };
+            }
+            return {
+                success: true,
+                message: "Inventory fetched successfully",
+                data: data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            }
+        }
+    },
+
+    async get_in_stock_products(): Promise<ServiceResponse<OrderItemRecord[]>> {
+        try {
+            const response = await fetch(`${INVENTORY_ENDPOINT}/instock`);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                const errorMessage = typeof data === 'object' ? data.error : data;
+                return {
+                    success: false,
+                    message: errorMessage || 'Failed to fetch in-stock products.'
+                };
+            }
+            return {
+                success: true,
+                message: "In-stock products fetched successfully",
+                data: data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            }
+        }
+    },
+
     async add_product(id: UUIDTypes): Promise<ServiceResponse<null>> {
         try {
             const response = await fetch(INVENTORY_ENDPOINT, {

@@ -65,8 +65,8 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY NOT NULL,
-            customer_id INTEGER NOT NULL,
+            id TEXT PRIMARY KEY NOT NULL,
+            customer_id TEXT NOT NULL,
             status INTEGER NOT NULL DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             delivery_date TIMESTAMP,
@@ -82,9 +82,9 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS order_items (
-            id INTEGER PRIMARY KEY NOT NULL,
-            order_id INTEGER NOT NULL,
-            product_id INTEGER NOT NULL,
+            id TEXT PRIMARY KEY NOT NULL,
+            order_id TEXT NOT NULL,
+            product_id TEXT NOT NULL,
             quantity INTEGER NOT NULL CHECK (quantity > 0),
             unit_price REAL NOT NULL,
             FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
@@ -100,6 +100,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/api/inventory", get(api::inventory_routes::get_inventory))
+        .route("/api/inventory/instock", get(api::inventory_routes::get_instock_inventory))
         .route("/api/inventory", post(api::inventory_routes::update_inventory))
         .route("/api/modify_inventory", post(api::inventory_routes::modify_inventory))
         .route("/api/customers", get(api::customer_routes::get_customers))
@@ -112,7 +113,10 @@ async fn main() {
         .route("/api/products/{id}", get(api::product_routes::get_product_details))
         .route("/api/customers/{id}", get(api::customer_routes::get_customer_details))
         .route("/api/customers/{id}", delete(api::customer_routes::delete_customer))
-        .route("/api/orders", get(api::order_routes::get_orders))
+        .route("/api/orders", get(api::order_routes::get_orders)) // For all orders
+        .route("/api/orders/summary", get(api::order_routes::get_orders_summary)) // For summary of all orders
+        .route("/api/orders/{id}", get(api::order_routes::get_order_details)) // For a single order
+        .route("/api/orders", post(api::order_routes::create_order))
         .route("/api/query", post(api::special_routes::run_custom_query))
         .with_state(state);
 

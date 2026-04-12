@@ -15,3 +15,35 @@
     flex: 1;
     border: 1px solid red;
 }
+
+.orders-table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 1rem;
+}
+
+.orders-table-header {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.orders-table-header span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  text-align: center;
+}
+
+.products-table {
+  min-width: 500px; /* prevents columns collapsing too small */
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
