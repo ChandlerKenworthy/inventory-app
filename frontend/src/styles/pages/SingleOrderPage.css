@@ -1,0 +1,36 @@
+.order-details-summary-container {
+    border-radius: 15px;
+    background-color: #f9fafb;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.order-details-summary-container p {
+    margin: 0;
+}
+
+.order-details-table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 1rem;
+}
+
+.order-details-table-header {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.order-details-table-header span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  text-align: center;
+}
