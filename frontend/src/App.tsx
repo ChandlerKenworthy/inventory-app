@@ -18,14 +18,14 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/inventory" element={<InventoryPage />} />
         <Route path="/customers" element={<CustomersPage />} />
+        <Route path="/customers/:id" element={<SingleCustomerPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:id" element={<SingleProductPage />} />
-        <Route path="/customers/:id" element={<SingleCustomerPage />} />
-        <Route path="/query" element={<CustomQueryPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/new" element={<NewOrderPage />} />
-        <Route path="/status" element={<StatusPage />} />
         <Route path="/orders/:id" element={<SingleOrderPage />} />
+        <Route path="/query" element={<CustomQueryPage />} />
+        <Route path="/status" element={<StatusPage />} />
       </Routes>
     </BrowserRouter>
   );

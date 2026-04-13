@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-
-type ConnectionStatus = "checking" | "connected" | "disconnected";
+import type { ConnectionStatus } from "../Types";
 
 export function useHealthCheck(intervalMs = 5000) {
   const [status, setStatus] = useState<ConnectionStatus>("checking");

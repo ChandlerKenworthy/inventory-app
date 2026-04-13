@@ -72,19 +72,19 @@ pub async fn add_product(
     Json(payload): Json<ProductResponseItem>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
-        r#"
+        r"
         INSERT INTO products (id, name, is_fragile, weight, width, height, depth, price)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        "#
+        "
     )
     .bind(payload.id as String)
     .bind(payload.name)
     .bind(payload.is_fragile)
-    .bind(payload.weight as f64)
-    .bind(payload.width as f64)
-    .bind(payload.height as f64)
-    .bind(payload.depth as f64)
-    .bind(payload.price as f64)
+    .bind(payload.weight)
+    .bind(payload.width)
+    .bind(payload.height)
+    .bind(payload.depth)
+    .bind(payload.price)
     .execute(&state.db);
     
     match result.await {
@@ -98,10 +98,10 @@ pub async fn delete_product(
     Path(id): Path<String>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
-        r#"
+        r"
         DELETE FROM products
         WHERE id = ?
-        "#
+        "
     )
     .bind(id as String)
     .execute(&state.db);

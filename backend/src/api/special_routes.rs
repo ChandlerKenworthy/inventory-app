@@ -45,8 +45,7 @@ pub async fn run_custom_query(
                     "REAL" | "FLOAT" | "DOUBLE" | "NUMERIC" => {
                         let val: f64 = row.try_get(name).unwrap_or(0.0);
                         serde_json::Number::from_f64(val)
-                            .map(Value::Number)
-                            .unwrap_or(Value::Null)
+                            .map_or(Value::Null, Value::Number)
                     }
                     "BOOLEAN" | "BOOL" => {
                         let val: bool = row.try_get(name).unwrap_or(false);

@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc, NaiveDate};
+// use chrono::{DateTime, Utc, NaiveDate};
 use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize)] // Used when making new orders
@@ -10,7 +10,7 @@ pub struct CreateOrderPayload {
 #[derive(Deserialize)] // Used when making new orders
 pub struct OrderItemInput {
     pub product_id: String,
-    pub quantity: i64,
+    pub quantity: i32,
 }
 
 #[derive(Serialize)] // used when returning orders to the frontend
@@ -46,28 +46,4 @@ pub struct OrderItemRecord {
     pub product_name: Option<String>,
     pub quantity: u32,
     pub unit_price: f64,
-}
-
-pub struct Order {
-    pub id: String, // unique order ID (uuidv4)
-    pub customer_id: String, // ID of the customer who placed the order (uuidv4)
-    pub status: OrderStatus,
-    pub items: Vec<OrderItem>, // vector of all products in the order
-    pub order_time: DateTime<Utc>,
-    pub delivery_date: Option<NaiveDate>, // may not have a specificed delivery date yet
-
-}
-
-pub struct OrderItem {
-    pub product_id: String,
-    pub quantity: u32,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub enum OrderStatus {
-    Received,
-    Processing,
-    Dispatched,
-    Delivered,
-    Cancelled,
 }

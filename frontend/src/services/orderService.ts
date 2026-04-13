@@ -61,35 +61,6 @@ export const orderService = {
         }
     },
 
-    async get_orders(): Promise<ServiceResponse<OrderResponse[]>> {
-        try {
-            const response = await fetch(ORDERS_ENDPOINT, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'},
-            });
-            const data = await response.json();
-
-            if (!response.ok) {
-                return {
-                    success: false,
-                    message: "Failed to fetch orders.",
-                    data: undefined
-                }
-            }
-            return {
-                success: true,
-                message: "Orders fetched successfully",
-                data: data
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: "Network error: " + error,
-                data: undefined
-            };
-        }
-    },
-
     async send_order(data: NewOrderItemFormData): Promise<ServiceResponse<null>> {
         try {
             const response = await fetch(ORDERS_ENDPOINT, {
