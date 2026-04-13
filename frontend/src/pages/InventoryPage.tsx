@@ -6,6 +6,7 @@ import "../styles/pages/InventoryPage.css";
 import Page from "../components/Page";
 import type { UUIDTypes } from "uuid";
 import { inventoryService } from "../services/inventoryService";
+import toast from "react-hot-toast";
 
 type SortField = "product_id" | "quantity";
 type SortDirection = "asc" | "desc";
@@ -21,9 +22,18 @@ export default function InventoryPage() {
   const [searchTerm, setSearchTerm] = useState<string | null>(null);
 
   const fetchInventory = async () => {
-    const res = await fetch("/api/inventory");
-    const data = await res.json();
-    setInventory(data);
+    toast.promise(
+      inventoryService.get_inventory(),
+      {
+        loading: "Loading inventory...",
+        success: (result) => {
+          if (!result.success) throw new Error(result.message);
+          setInventory(result.data);
+          return "Inventory loaded";
+        },
+        error: (err) => "Failed to load inventory: " + err.message,
+      }
+    );
   };
 
   useEffect(() => {
@@ -72,12 +82,18 @@ export default function InventoryPage() {
     sort?.field === field && sort?.direction === direction;
 
   const deleteItemHandler = async (id: UUIDTypes) => {
-    const result = await inventoryService.delete(id);
-    if(result.success) {
-      fetchInventory(); // Refresh the list
-    } else {
-      alert("Failed to delete item: " + result.message);
-    }
+    toast.promise(
+      inventoryService.delete(id),
+      {
+        loading: "Deleting item...",
+        success: (result) => {
+          if (!result.success) throw new Error(result.message);
+          fetchInventory(); // Refresh the list after deletion
+          return "Item deleted";
+        },
+        error: (err) => "Failed to delete item: " + err.message,
+      }
+    );
   }
 
   return (

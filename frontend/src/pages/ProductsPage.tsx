@@ -1,25 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
-import type { APIResponse, ProductItem } from "../Types";
+import type { ProductItem } from "../Types";
 import "../styles/pages/ProductsPage.css"
 import { GoSearch, GoXCircle } from "react-icons/go";
 import AddNewProductForm from "../components/forms/AddNewProductForm";
 import ProductItemRow from "../components/ProductItemRow";
 import Page from "../components/Page";
-import FeedbackPopup from "../components/FeedbackPopup";
 import { productService } from "../services/productService";
-import { ClimbingBoxLoader } from "react-spinners";
 import type { UUIDTypes } from "uuid";
 import { inventoryService } from "../services/inventoryService";
+import toast from "react-hot-toast";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductItem[]>([]);
     const [productIDSearchTerm, setProductIDSearchTerm] = useState<string | null>("");
     const [productNameSearchTerm, setProductNameSearchTerm] = useState<string | null>("");
-    const [feedback, setFeedback] = useState<{ type: APIResponse, message: string }>({
-        type: null,
-        message: ''
-    });
-    const [loading, setLoading] = useState<boolean>(true);
 
     const filteredProducts = useMemo(() => {
         const result = products.filter((product) => {
@@ -31,39 +25,47 @@ export default function ProductsPage() {
     }, [products, productIDSearchTerm, productNameSearchTerm]);
 
     const fetchProducts = async () => {
-        setLoading(true);
-        const res = await fetch("/api/products");
-        const data = await res.json();
-        setProducts(data);
-        setLoading(false);
+        toast.promise(
+            productService.get_all(),
+            {
+                loading: "Loading products...",
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message);
+                    setProducts(result.data);
+                    return "Products loaded";
+                },
+                error: (err) => "Failed to load products: " + err.message,
+            }
+        );
     }
 
     const deleteProductHandler = async (id: UUIDTypes) => {
-        setLoading(true);
-        const result = await productService.delete(id);
-        setFeedback({
-            type: result.success ? 'success' : 'error',
-            message: result.message
-        });
-        if (result.success) {
-            fetchProducts(); // Refresh the list
-        }
-        setLoading(false);
+        toast.promise(
+            productService.delete(id),
+            {
+                loading: 'Deleting product...',
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message); // Catch logic errors
+                    fetchProducts();
+                    return "Product deleted successfully";
+                },
+                error: (err) => `Error: ${err.message || "Could not delete product"}`,
+            }
+        );
     }
 
     const addToInventoryHandler = async (id: UUIDTypes) => {
-        const result = await inventoryService.add_product(id);
-        if(result.success) {
-            setFeedback({
-                type: 'success',
-                message: result.message
-            });
-        } else {
-            setFeedback({
-                type: 'error',
-                message: result.message
-            });
-        }
+        toast.promise(
+            inventoryService.add_product(id),
+            {
+                loading: 'Adding product to inventory...',
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message); // Catch logic errors
+                    return "Product added to inventory successfully";
+                },
+                error: (err) => `Error: ${err.message || "Could not add product to inventory"}`,
+            }
+        );
     }
 
     useEffect(() => {
@@ -72,9 +74,8 @@ export default function ProductsPage() {
 
     return (
         <Page title="Products Catalogue">
-            {feedback.type && <FeedbackPopup feedback={feedback} onClose={() => setFeedback({ type: null, message: '' })} />}
             <div className="products-page-content-wrapper">
-                <AddNewProductForm onSuccess={() => fetchProducts()} setFeedback={setFeedback} />
+                <AddNewProductForm onSuccess={() => fetchProducts()} />
                 <div className="products-list">
                     <div className="search-fields">
                         <div className="sort-group">
@@ -110,8 +111,6 @@ export default function ProductsPage() {
                             </button>
                         </div>
                     </div>
-                    <ClimbingBoxLoader color="#000" size={12} loading={loading} />
-                    {!loading && (<>
                     <div className="products-table-header">
                         <span>Product ID</span>
                         <span>Name</span>
@@ -132,7 +131,6 @@ export default function ProductsPage() {
                         />
                     ))}
                     </div>
-                    </>)}
                 </div>  
             </div>
         </Page>

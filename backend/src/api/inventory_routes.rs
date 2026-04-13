@@ -10,6 +10,28 @@ use crate::models::inventory::{InventoryResponseItem, CreateInventoryItem};
 use crate::models::order::OrderItemRecord;
 use crate::state::AppState;
 
+pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<InventoryResponseItem>> {
+    let rows = sqlx::query(
+        r"
+        SELECT product_id, quantity, aisle, shelf, bin FROM inventory
+        "
+    ).fetch_all(&state.db)
+    .await
+    .unwrap();
+
+    let items = rows.into_iter().map(|row| {
+        InventoryResponseItem {
+            product_id: row.get("product_id"),
+            quantity: row.get("quantity"),
+            aisle: row.get("aisle"),
+            shelf: row.get("shelf"),
+            bin: row.get("bin"),
+        }
+    }).collect();
+
+    Json(items)
+}
+
 pub async fn get_instock_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<OrderItemRecord>> {
     let rows = sqlx::query(
         r"

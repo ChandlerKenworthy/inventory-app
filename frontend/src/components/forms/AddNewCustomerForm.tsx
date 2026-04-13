@@ -2,16 +2,15 @@ import TextInput from "../../components/forms/TextInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomerSchema, { type NewCustomerFormData } from "../../schema/CustomerSchema";
-import type { APIResponse } from "../../Types";
 import { customerService } from "../../services/customerService";
 import { v4 as uuid } from "uuid";
+import toast from "react-hot-toast";
 
 interface CustomerFormProps {
   onSuccess: () => void; // tells the parent to re-fetch after submit
-  setFeedback: (feedback: { type: APIResponse; message: string }) => void; // for setting success/error messages in the parent
 }
 
-export default function AddNewCustomerForm({ onSuccess, setFeedback }: CustomerFormProps) {
+export default function AddNewCustomerForm({ onSuccess }: CustomerFormProps) {
   const {
     register,
     handleSubmit,
@@ -32,18 +31,23 @@ export default function AddNewCustomerForm({ onSuccess, setFeedback }: CustomerF
       ...data,
       id: uuid() // Generate a new UUID for the customer ID on form submission
     }
-    
-    const result = await customerService.add(sendData);
-    setFeedback({
-        type: result.success ? 'success' : 'error',
-        message: result.message
-    });
-    reset(); // Clear the form, whatever happens
-    if (result.success) {
-      onSuccess(); // Refresh the list
-    }
-    reset();
-    onSuccess();
+    toast.promise(
+      customerService.add(sendData),
+      {
+        loading: 'Adding customer...',
+        success: (result) => {
+          if (!result.success) throw new Error(result.message); // Catch logic errors
+          reset();
+          onSuccess();
+          return "Customer added successfully";
+        },
+        error: (err) => {
+          reset();
+          onSuccess();
+          return `Error: ${err.message || "Could not add customer"}`;
+        },
+      }
+    );
   };
 
   return (
