@@ -1,49 +1,45 @@
 import { useState, useEffect } from "react";
-import type { APIResponse, CustomerItem } from "../Types";
+import type { CustomerWithOrderCount } from "../Types";
 import Page from "../components/Page";
-import FeedbackPopup from "../components/FeedbackPopup";
 import CustomerRow from "../components/CustomerRow";
 import { customerService } from "../services/customerService";
-import { ClimbingBoxLoader } from "react-spinners";
 import type { UUIDTypes } from "uuid";
 import AddNewCustomerForm from "../components/forms/AddNewCustomerForm";
 import "../styles/pages/CustomersPage.css";
+import { toast } from "react-hot-toast";
 
 export default function CustomersPage() {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [customers, setCustomers] = useState<CustomerItem[]>([]);
-  const [feedback, setFeedback] = useState<{ type: APIResponse, message: string }>({
-        type: null,
-        message: ''
-    });
+  const [customers, setCustomers] = useState<CustomerWithOrderCount[]>([]);
 
   const fetchCustomers = async () => {
-    setLoading(true);
-    const result = await customerService.get_all();
-    if (!result.success) {
-        setFeedback({
-            type: 'error',
-            message: result.message
-        });
-        setCustomers([]);
-        setLoading(false);
-        return;
-    }
-    setCustomers(result.data);
-    setLoading(false);
+    toast.promise(
+        customerService.get_all(),
+        {
+            loading: 'Loading customers...',
+            success: (result) => {
+                if (!result.success) throw new Error(result.message); // Catch logic errors
+                setCustomers(result.data);
+                return "Customers loaded successfully";
+            },
+            error: (err) => `Error: ${err.message || "Could not load customers"}`,
+        }
+    );
   };
 
   const deleteCustomerHandler = async (customerId: UUIDTypes) => {
-    setLoading(true);
-    const result = await customerService.delete(customerId);
-    setFeedback({
-        type: result.success ? 'success' : 'error',
-        message: result.message
-    });
-    if (result.success) {
-        fetchCustomers(); // Refresh the list
-    }
-    setLoading(false);
+    if (!window.confirm("Are you sure? This will permanently remove the customer record.")) return;
+    toast.promise(
+        customerService.delete(customerId),
+        {
+            loading: 'Deleting customer...',
+            success: (result) => {
+                if (!result.success) throw new Error(result.message); // Catch logic errors
+                fetchCustomers();
+                return "Customer deleted successfully";
+            },
+            error: (err) => `Error: ${err.message || "Could not delete customer"}`,
+        }
+    );
   }
 
   useEffect(() => {
@@ -52,14 +48,12 @@ export default function CustomersPage() {
 
   return (
     <Page title="Customers">
-      {feedback.type && <FeedbackPopup feedback={feedback} onClose={() => setFeedback({ type: null, message: '' })} />}
       <div className="customers-content-wrapper">
         <div className="customer-form-wrapper">
-          <AddNewCustomerForm onSuccess={fetchCustomers} setFeedback={setFeedback} />
+          <AddNewCustomerForm onSuccess={fetchCustomers} />
         </div>
         <div className="customer-table-wrapper">
-          <ClimbingBoxLoader color="#000" size={12} loading={loading} />
-          {!loading && (<div className="customers-table">
+          <div className="customers-table">
             <div className="customers-table-header">
               <span>Customer ID</span>
               <span>First Name</span>
@@ -69,7 +63,7 @@ export default function CustomersPage() {
               <span>Delete</span>
             </div>
             <div className="customers-table-body">
-              {customers.map((customer: CustomerItem) => (
+              {customers.map((customer: CustomerWithOrderCount) => (
                   <CustomerRow 
                     key={customer.id as string} 
                     customer={customer}
@@ -77,7 +71,7 @@ export default function CustomersPage() {
                   />
               ))}
             </div>
-          </div>)}
+          </div>
         </div>
       </div>
     </Page>

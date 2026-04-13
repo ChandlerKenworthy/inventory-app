@@ -6,16 +6,15 @@ import "../../styles/components/forms/AddNewProduct.css";
 import TextInput from "./TextInput";
 import NumberInput from "./NumberInput";
 import RadioInput from "./RadioInput";
-import type { APIResponse } from "../../Types";
 import { v4 as uuid } from "uuid";
 import { productService } from "../../services/productService";
+import toast from "react-hot-toast";
 
 interface AddNewProductProps {
     onSuccess: () => void;
-    setFeedback: (feedback: { type: APIResponse; message: string }) => void;
 }
 
-export default function AddNewProductForm({ onSuccess, setFeedback }: AddNewProductProps) {
+export default function AddNewProductForm({ onSuccess }: AddNewProductProps) {
     const {
         register,
         handleSubmit,
@@ -40,13 +39,20 @@ export default function AddNewProductForm({ onSuccess, setFeedback }: AddNewProd
             ...data,
             id: uuid()
         }
-        const result = await productService.add(sendData);
-        if(result.success) {
-            reset();
-            onSuccess();
-        } else {
-            setFeedback({ type: 'error', message: result.message || 'Failed to add new product.' });
-        }
+
+        toast.promise(
+            productService.add(sendData),
+            {
+                loading: 'Adding product...',
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message); // Catch logic errors
+                    reset();
+                    onSuccess();
+                    return "Product added successfully";
+                },
+                error: (err) => `Error: ${err.message || "Could not add product"}`,
+            }
+        );
     };
 
     return (

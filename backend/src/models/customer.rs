@@ -7,3 +7,12 @@ pub struct Customer {
     pub email: String,
     pub id: String, // uuidv4 string e.g. "550e8400-e29b-41d4-a716-446655440000"
 }
+
+#[derive(Deserialize, Serialize, Clone)]
+pub struct CustomerWithOrderCount {
+    pub first_name: String, // first name of the customer e.g. "John"
+    pub second_name: String, // second name of the customer e.g. "Smith"
+    pub email: String,
+    pub id: String, // uuidv4 string e.g. "550e8400-e29b-41d4-a716-446655440000"
+    pub order_count: u32, // number of orders associated with this customer
+}

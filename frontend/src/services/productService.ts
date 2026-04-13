@@ -4,6 +4,30 @@ import { PRODUCTS_ENDPOINT } from "./constants";
 import type { NewProductItemFormData } from "../schema/ProductItemSchema";
 
 export const productService = {
+    async get_all(): Promise<ServiceResponse<ProductItem[]>> {
+        try {
+            const response = await fetch(PRODUCTS_ENDPOINT);
+            const data = await response.json();
+            if (!response.ok) {
+                const errorMessage = typeof data === 'object' ? data.error : data;
+                return {
+                    success: false,
+                    message: errorMessage || 'Failed to fetch products.'
+                };
+            }
+            return {
+                success: true,
+                message: "Products fetched successfully",
+                data: data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            }
+        }
+    },
+
     async get(id: UUIDTypes): Promise<ServiceResponse<ProductItem>> {
         try {
             const response = await fetch(`${PRODUCTS_ENDPOINT}/${id}`);

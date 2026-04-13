@@ -1,15 +1,13 @@
 import { GoTrash } from "react-icons/go";
-import type { CustomerItem } from "../Types";
+import type { CustomerWithOrderCount } from "../Types";
 import type { UUIDTypes } from "uuid";
 import "../styles/components/CustomerRow.css";
-import { useState } from "react";
-import { set } from "zod";
 import { Link } from "react-router";
 
 export default function CustomerRow(
     { customer, deleteCustomerHandler } : 
     { 
-        customer: CustomerItem,
+        customer: CustomerWithOrderCount,
         deleteCustomerHandler: (id: UUIDTypes) => void,
     }
 ) {
@@ -24,7 +22,7 @@ export default function CustomerRow(
             <span>{customer.first_name}</span>
             <span>{customer.second_name}</span>
             <span>{customer.email}</span>
-            <span>?</span>
+            <span>{customer.order_count}</span>
             <button 
                 type="button"
                 onClick={() => deleteCustomerHandler(customer.id)}
