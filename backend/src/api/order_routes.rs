@@ -161,9 +161,11 @@ pub async fn get_orders_summary(
     let rows = sqlx::query(
         r"
         SELECT 
-            o.id, o.customer_id, o.status, o.created_at, o.total_price, SUM(oi.quantity) as number_of_items
+            o.id, o.customer_id, o.status, o.created_at, o.total_price, 
+            SUM(oi.quantity) as number_of_items
         FROM orders o
         LEFT JOIN order_items oi ON o.id = oi.order_id
+        GROUP BY o.id
         ORDER BY o.created_at DESC
         "
     )
@@ -178,7 +180,7 @@ pub async fn get_orders_summary(
             status: row.get("status"),
             created_at: row.get("created_at"),
             total_price: row.get("total_price"),
-            number_of_items: row.get("number_of_items"), // TODO: Calculate actual number of items
+            number_of_items: row.get("number_of_items"),
         }
     }).collect();
 

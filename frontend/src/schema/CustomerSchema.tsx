@@ -13,7 +13,7 @@ const CustomerSchema = z.object({
         .regex(/^([a-zA-Z\s])+$/, "Only letters and spaces"),
     second_name: z
         .string()
-        .min(3, "Second name must be at least 3 characters long")
+        .min(2, "Second name must be at least 2 characters long")
         .max(20, "Second name must be less than 20 characters long")
         .regex(/^([a-zA-Z\s])+$/, "Only letters and spaces"),
 });

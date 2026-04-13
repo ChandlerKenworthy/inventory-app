@@ -1,13 +1,12 @@
 import type { UUIDTypes } from "uuid"
 
-export type InventoryItem = {
-  product_id: UUIDTypes,
-  quantity: number
-  aisle: number
-  shelf: number
-  bin: number
-}
+// For monitoring the connection to the database from the frontend health check
+export type ConnectionStatus = "checking" | "connected" | "disconnected";
 
+// For handling error/success feedback to the user when dealing with forms and button clicks
+export type APIResponse = "success" | "error" | null;
+
+// For handling the different states an order can be in and making code more readable (no magic strings)
 export enum OrderStatus {
     Pending = 0,
     Processing = 1,
@@ -16,13 +15,18 @@ export enum OrderStatus {
     Cancelled = 4
 }
 
-export interface OrderItemResponse { // used
-    product_id: string;
-    quantity: number;
-    unit_price: number;
+// Used to summarise the orders on the OrdersPage and avoid having to fetch all the order items for each order when we only need a count of them and the total price
+export interface OrderSummaryResponse {
+    id: string;
+    customer_id: string;
+    status: OrderStatus;
+    created_at: string;
+    total_price: number;
+    number_of_items: number;
 }
 
-export interface OrderResponse { // used
+// The full order details, used when viewing a specific order and needing to see all the items in that order and their details e.g. to inspect if something went wrong or if something is missing from the order
+export interface OrderResponse {
     id: string;
     customer_id: string;
     status: number;
@@ -31,39 +35,42 @@ export interface OrderResponse { // used
     items: OrderItemResponse[];
 }
 
-export interface OrderSummaryResponse {
-    id: string;
-    customer_id: string;
-    status: number;
-    created_at: string;
-    total_price: number;
-    number_of_items: number;
-} // used
+// The information required about a product in an order all we care for is the ID, quantity and the price paid everything else can be found from JOINing with the inventory or product tables
+export interface OrderItemResponse {
+    product_id: string;
+    quantity: number;
+    unit_price: number;
+}
 
+// For recording details of a single type of product in an order when making a new order
 export interface OrderItemRecord {
     product_id: UUIDTypes;
-    product_name?: string; // Optional: added during the SQL JOIN
+    product_name?: string;
     quantity: number;
-    unit_price: number;    // Always track the price at time of sale!
+    unit_price: number; // Track price at the time of sale
 }
 
-export interface Order {
-  id: UUIDTypes;
-  customer_id: UUIDTypes;
-  items: OrderItemRecord[];
-  status: OrderStatus;
-  total_price: number;
-  created_at: string;
-  delivery_date: string | null;
-  tracking_number?: string;
-}
-
+// Response format from the service layer indicating if the action was successful
+// any error or success message and some relevant data, if required
 export interface ServiceResponse<T> {
     success: boolean;
     message: string;
     data?: T;
 }
 
+// The amount, and of which product, in a particular location in the inventory
+// for now products cannot have duplicate locations
+export type InventoryItem = {
+  product_id: UUIDTypes,
+  quantity: number
+  aisle: number
+  shelf: number
+  bin: number
+}
+
+// For viewing what products are in the catalogue and at what current price, note when making orders
+// the price paid is drawn from the product catalogue the moment the order is taken - this information
+// is recorded in the order separate from the product catalogue.
 export type ProductItem = {
   id: UUIDTypes,
   name: string,
@@ -75,19 +82,10 @@ export type ProductItem = {
   price: number,
 }
 
+// For collating all the relevant customer information together
 export type CustomerItem = {
-  id: UUIDTypes, // uuid
+  id: UUIDTypes,
   first_name: string,
   second_name: string,
   email: string,
 }
-
-export const DefaultCustomer = {
-  id: "00000000-0000-0000-0000-000000000000",
-  first_name: "Default",
-  second_name: "Customer",
-  email: "default@customer.com",
-} as CustomerItem;
-
-export type ConnectionStatus = "checking" | "connected" | "disconnected";
-export type APIResponse = "success" | "error" | null;

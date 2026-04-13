@@ -4,7 +4,7 @@
     align-items: center;
     padding: 0 1rem;
     gap: 1rem;
-    border-bottom: 1px solid #f3f4f6;
+    border: 1px solid #f3f4f6;
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
     transition: background-color 0.15s ease;
@@ -20,7 +20,6 @@
 
 .order-table-row span {
     font-size: 0.875rem;
-    color: #111827;
     text-align: center;
 }
 
@@ -36,3 +35,17 @@
 .order-id-link:hover {
     color: rgb(34, 114, 189);
 }
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-pending { background-color: #c5c5c5; }
+.status-processing { background-color: #f59e0b; }
+.status-shipped { background-color: #1f22c5; }
+.status-delivered { background-color: #10b93a; }
+.status-cancelled { background-color: #ef4444; }

@@ -2,7 +2,6 @@ import { CUSTOMERS_ENDPOINT } from "./constants";
 import type { CustomerItem, ServiceResponse } from "../Types";
 import type { NewCustomerFormData } from "../schema/CustomerSchema";
 import type { UUIDTypes } from "uuid";
-import type { CustomerItem } from "../Types";
 
 export const customerService = {
     async get_all(): Promise<ServiceResponse<CustomerItem[]>> {
