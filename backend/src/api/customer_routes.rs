@@ -6,7 +6,7 @@ use axum::{
 };
 use std::sync::Arc;
 use sqlx::Row;
-use crate::models::customer::{Customer};
+use crate::models::customer::{Customer, CustomerWithOrderCount};
 use crate::state::AppState;
 
 pub async fn get_customer_details(
@@ -35,19 +35,24 @@ pub async fn get_customer_details(
     }
 }
 
-pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<Customer>> {
-
+pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<CustomerWithOrderCount>> {
     let rows = sqlx::query(
-        "SELECT id, first_name, second_name, email FROM customers"
+        r"
+        SELECT c.id, c.first_name, c.second_name, c.email, COUNT(o.id) AS order_count
+        FROM customers c
+        LEFT JOIN orders o ON c.id = o.customer_id
+        GROUP BY c.id
+        "
     ).fetch_all(&state.db)
     .await.unwrap();
 
     let customers = rows.into_iter().map(|row| {
-        Customer {
+        CustomerWithOrderCount {
             id: row.get("id"),
             first_name: row.get("first_name"),
             second_name: row.get("second_name"),
             email: row.get("email"),
+            order_count: row.get("order_count"),
         }
     }).collect();
 

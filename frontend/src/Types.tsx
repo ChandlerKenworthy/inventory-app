@@ -89,3 +89,12 @@ export type CustomerItem = {
   second_name: string,
   email: string,
 }
+
+// For displaying customers in a table on the CustomersPage and showing how many orders they have made, this is more efficient than having to fetch all the orders for each customer just to count them
+export type CustomerWithOrderCount = {
+  id: UUIDTypes,
+  first_name: string,
+  second_name: string,
+  email: string,
+  order_count: number
+}

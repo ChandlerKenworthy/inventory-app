@@ -1,10 +1,10 @@
 import { CUSTOMERS_ENDPOINT } from "./constants";
-import type { CustomerItem, ServiceResponse } from "../Types";
+import type { CustomerItem, CustomerWithOrderCount, ServiceResponse } from "../Types";
 import type { NewCustomerFormData } from "../schema/CustomerSchema";
 import type { UUIDTypes } from "uuid";
 
 export const customerService = {
-    async get_all(): Promise<ServiceResponse<CustomerItem[]>> {
+    async get_all(): Promise<ServiceResponse<CustomerWithOrderCount[]>> {
         try {
             const response = await fetch(CUSTOMERS_ENDPOINT);
             const data = await response.json();
