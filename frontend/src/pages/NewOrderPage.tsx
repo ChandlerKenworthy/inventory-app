@@ -4,27 +4,40 @@ import Page from "../components/Page";
 import type { CustomerItem, OrderItemRecord } from "../Types";
 import { inventoryService } from "../services/inventoryService";
 import { customerService } from "../services/customerService";
+import { toast } from "react-hot-toast";
 
 export default function NewOrderPage() {
     const [inventory, setInventory] = useState<OrderItemRecord[]>([]);
     const [customers, setCustomers] = useState<CustomerItem[]>([]);
     
     const fetchInventory = async () => {
-        const result = await inventoryService.get_in_stock_products();
-        if (result.success) {
-            setInventory(result.data);
-        } else {
-            alert("Failed to fetch inventory: " + result.message);
-        }
+        toast.promise(
+            inventoryService.get_in_stock_products(),
+            {
+                loading: "Loading inventory...",
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message);
+                    setInventory(result.data);
+                    return "Inventory loaded";
+                },
+                error: (err) => "Failed to load inventory: " + err.message,
+            }
+        );
     }
 
     const fetchCustomers = async () => {
-        const result = await customerService.get_all();
-        if (result.success) {
-            setCustomers(result.data);
-        } else {
-            alert("Failed to fetch customers: " + result.message);
-        }
+        toast.promise(
+            customerService.get_all(),
+            {
+                loading: "Loading customers...",
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message);
+                    setCustomers(result.data);
+                    return "Customers loaded";
+                },
+                error: (err) => "Failed to load customers: " + err.message,
+            }
+        );
     }
 
     useEffect(() => {
@@ -35,7 +48,7 @@ export default function NewOrderPage() {
     return (
         <Page title="New Order">
             <AddNewOrderForm
-                onSuccess={() => console.log("Success")}
+                onSuccess={() => {}} // don't need to do anything apart from maybe navigate to order details screen?
                 products={inventory}
                 customers={customers}
             />

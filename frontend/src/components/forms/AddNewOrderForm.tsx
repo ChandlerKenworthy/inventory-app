@@ -4,6 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { GoPlus, GoTrash } from "react-icons/go";
 import type { CustomerItem, OrderItemRecord } from "../../Types";
 import { orderService } from "../../services/orderService";
+import toast from "react-hot-toast";
 
 interface AddNewOrderProps {
     onSuccess: () => void;
@@ -31,13 +32,18 @@ export default function AddNewOrderForm({ onSuccess, products, customers }: AddN
     const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
     const onSubmit = async (data: NewOrderItemFormData) => {
-        const response = await orderService.send_order(data);
-        reset(); // reset the form state
-        if (response.success) {
-            onSuccess(); // call the onSuccess callback to trigger any parent updates
-        } else {
-            alert("Failed to place order: " + response.message);
-        }
+        toast.promise(
+            orderService.send_order(data),
+            {
+                loading: "Placing order...",
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message);
+                    onSuccess(); // call the onSuccess callback to trigger any parent updates
+                    return "Order placed successfully";
+                },
+                error: (err) => "Failed to place order: " + err.message,
+            }
+        );
     };
 
     return (

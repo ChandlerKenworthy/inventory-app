@@ -1,25 +1,26 @@
 import { useState, useEffect } from "react";
 import Page from "../components/Page";
-import { ClimbingBoxLoader } from "react-spinners";
 import type { OrderSummaryResponse } from "../Types";
 import { orderService } from "../services/orderService";
 import OrderItemRow from "../components/OrderItemRow";
 import "../styles/pages/OrdersPage.css";
+import { toast } from "react-hot-toast";
 
 export default function OrdersPage() {
-    const [loading, setLoading] = useState<boolean>(true);
     const [orders, setOrders] = useState<OrderSummaryResponse[]>([]);
 
     const fetchOrders = async () => {
-        setLoading(true);
-        const response = await orderService.get_orders_summary();
-        if (response.success && response.data) {
-            setOrders(response.data);
-        } else {
-            // do some error handling e.g. setfeedback or something
-            console.error("Something went wrong fetching orders: ", response.message);
-        }
-        setLoading(false);
+        toast.promise(
+            orderService.get_orders_summary(), {
+                loading: "Fetching orders...",
+                success: (result) => {
+                    if (!result.success) throw new Error(result.message);
+                    setOrders(result.data);
+                    return "Orders fetched successfully!";
+                },
+                error: (err) => "Failed to fetch orders: " + err.message,
+            }
+        );
     };
 
     useEffect(() => {
@@ -29,9 +30,8 @@ export default function OrdersPage() {
     return (
         <Page title="Orders">
             <div className="content-wrapper">
-                <ClimbingBoxLoader color="#000" size={12} loading={loading} />
-                {!loading && orders.length === 0 && <p>No orders found.</p>}
-                {!loading && orders.length && (
+                {orders.length === 0 && <p>No orders found.</p>}
+                {orders.length > 0 && (
                     <div className="orders-table">
                         <div className="orders-table-header">
                             <span>Order ID</span>
