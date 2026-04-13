@@ -12,7 +12,7 @@ pub async fn create_order(
 ) -> Result<Json<String>, (StatusCode, Json<String>)> {
     // Begin the transaction (either everything happens or nothing happens)
     let mut tx = state.db.begin().await.map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, Json(format!("Transaction error: {}", e)))
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(format!("Transaction error: {e}")))
     })?;
 
     // Generate a V4 UUID for this order on the backend - expose as little as possible to the frontend
@@ -25,12 +25,12 @@ pub async fn create_order(
     for item in &payload.items {
         // JOIN products and inventory to verify price and stock in one trip
         let row = sqlx::query(
-            r#"
+            r"
             SELECT p.name, p.price, i.quantity 
             FROM products p
             JOIN inventory i ON p.id = i.product_id
             WHERE p.id = ?
-            "#
+            "
         )
         .bind(&item.product_id)
         .fetch_optional(&mut *tx)
@@ -42,14 +42,14 @@ pub async fn create_order(
         let price: f64 = row.get("price");
         let stock: i64 = row.get("quantity");
 
-        if stock < item.quantity {
+        if stock < i64::from(item.quantity) {
             return Err((
                 StatusCode::BAD_REQUEST, 
-                Json(format!("Insufficient stock for {}. Available: {}", name, stock))
+                Json(format!("Insufficient stock for {name}. Available: {stock}"))
             ));
         }
 
-        calculated_total_price += price * (item.quantity as f64);
+        calculated_total_price += price * (f64::from(item.quantity));
 
         items_to_insert.push((
             Uuid::new_v4().to_string(), // order_items id field
@@ -76,19 +76,19 @@ pub async fn create_order(
 
     // Insert into 'orders' table (doesn't include items just the order details)
     sqlx::query(
-        r#"
+        r"
         INSERT INTO orders (id, customer_id, status, total_price, created_at)
         VALUES (?, ?, ?, ?, ?)
-        "#
+        "
     )
     .bind(order_id.clone() as String)
     .bind(payload.customer_id.clone() as String) 
-    .bind(0 as i64) // Status: Pending    // To match INTEGER Sqlite
-    .bind(calculated_total_price as f64)  // f64 bind to match REAL
+    .bind(0_i64) // Status: Pending    // To match INTEGER Sqlite
+    .bind(calculated_total_price)  // f64 bind to match REAL
     .bind(now)                            // String (formatted as timestamp)
     .execute(&mut *tx)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(format!("Order insert failed: {}", e))))?;
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(format!("Order insert failed: {e}"))))?;
 
     // Insert line items
     for (line_id, prod_id, qty, price) in items_to_insert {
@@ -115,14 +115,14 @@ pub async fn get_orders(
 ) -> Result<Json<Vec<OrderResponse>>, (StatusCode, Json<String>)> {
     // Join orders and order_items to get all details in one query
     let rows = sqlx::query(
-        r#"
+        r"
         SELECT 
             o.id, o.customer_id, o.status, o.created_at, o.total_price,
             oi.product_id, oi.quantity, oi.unit_price
         FROM orders o
         LEFT JOIN order_items oi ON o.id = oi.order_id
         ORDER BY o.created_at DESC
-        "#
+        "
     )
     .fetch_all(&state.db)
     .await
@@ -159,13 +159,13 @@ pub async fn get_orders_summary(
     State(state): State<Arc<AppState>>
 ) -> Result<Json<Vec<OrderSummaryResponse>>, (StatusCode, Json<String>)> {
     let rows = sqlx::query(
-        r#"
+        r"
         SELECT 
             o.id, o.customer_id, o.status, o.created_at, o.total_price, SUM(oi.quantity) as number_of_items
         FROM orders o
         LEFT JOIN order_items oi ON o.id = oi.order_id
         ORDER BY o.created_at DESC
-        "#
+        "
     )
     .fetch_all(&state.db)
     .await
@@ -191,7 +191,7 @@ pub async fn get_order_details(
 ) -> Result<Json<OrderResponse>, (StatusCode, Json<String>)> {
     // Join orders and order_items to get all details in one query
     let rows = sqlx::query(
-        r#"
+        r"
         SELECT 
             o.id, o.customer_id, o.status, o.created_at, o.total_price,
             oi.product_id, oi.quantity, oi.unit_price
@@ -199,7 +199,7 @@ pub async fn get_order_details(
         LEFT JOIN order_items oi ON o.id = oi.order_id
         WHERE o.id = ?
         ORDER BY o.created_at DESC
-        "#
+        "
     )
     .bind(&order_id)
     .fetch_all(&state.db)

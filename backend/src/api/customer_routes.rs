@@ -14,10 +14,10 @@ pub async fn get_customer_details(
     Path(id): Path<String>
 ) -> Result<Json<Customer>, StatusCode> {
     let row = sqlx::query(
-        r#"
+        r"
         SELECT * FROM customers
         WHERE id = ?
-        "#
+        "
     ).bind(id as String).fetch_one(&state.db).await;
 
     match row {
@@ -59,14 +59,14 @@ pub async fn add_new_customer(
     Json(payload): Json<Customer>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
-        r#"
+        r"
         INSERT INTO customers (id, first_name, second_name, email)
             VALUES (?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 first_name = EXCLUDED.first_name,
                 second_name = EXCLUDED.second_name,
                 email = EXCLUDED.email
-        "#
+        "
     )
     .bind(payload.id as String)
     .bind(payload.first_name as String)
@@ -85,9 +85,9 @@ pub async fn delete_customer(
     Path(customer_id): Path<String>, // Extracts {id} from the URL
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
-        r#"
+        r"
         DELETE FROM customers WHERE id = ?
-        "#
+        "
     )
     .bind(customer_id as String)
     .execute(&state.db);

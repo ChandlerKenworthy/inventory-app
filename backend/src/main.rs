@@ -1,3 +1,11 @@
+// Make clippy very pedantic to enforce best practices and catch potential issues early
+#![warn(clippy::all)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::module_name_repetitions)] // Allow some pedantic lints
+#![allow(clippy::missing_errors_doc)] // Allow some pedantic lints
+#![allow(clippy::missing_docs_in_private_items)] // Allow some pedantic lints
+#![allow(clippy::too_many_arguments)] // Allow some pedantic lints
+
 use axum::{Router, routing::get, routing::post, routing::delete};
 use std::{sync::Arc};
 use sqlx::sqlite::SqlitePool;
@@ -16,7 +24,7 @@ async fn main() {
         .unwrap();
 
     sqlx::query(
-        r#"
+        r"
         CREATE TABLE IF NOT EXISTS inventory (
             product_id TEXT PRIMARY KEY,
             quantity INTEGER NOT NULL,
@@ -24,28 +32,28 @@ async fn main() {
             shelf INTEGER,
             bin INTEGER
         );
-        "#
+        "
     )
     .execute(&pool)
     .await
     .unwrap();
 
     sqlx::query(
-        r#"
+        r"
         CREATE TABLE IF NOT EXISTS customers (
             id TEXT PRIMARY KEY,
             first_name TEXT NOT NULL,
             second_name TEXT NOT NULL,
             email TEXT NOT NULL
         );
-        "#
+        "
     )
     .execute(&pool)
     .await
     .unwrap();
 
     sqlx::query(
-        r#"
+        r"
         CREATE TABLE IF NOT EXISTS products (
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
@@ -56,14 +64,14 @@ async fn main() {
             depth REAL NOT NULL,
             price REAL NOT NULL
         );
-        "#
+        "
     )
     .execute(&pool)
     .await
     .unwrap();
 
     sqlx::query(
-        r#"
+        r"
         CREATE TABLE IF NOT EXISTS orders (
             id TEXT PRIMARY KEY NOT NULL,
             customer_id TEXT NOT NULL,
@@ -73,14 +81,14 @@ async fn main() {
             total_price REAL NOT NULL,
             FOREIGN KEY (customer_id) REFERENCES customers(id)
         );
-        "#
+        "
     )
     .execute(&pool)
     .await
     .unwrap();
 
     sqlx::query(
-        r#"
+        r"
         CREATE TABLE IF NOT EXISTS order_items (
             id TEXT PRIMARY KEY NOT NULL,
             order_id TEXT NOT NULL,
@@ -90,7 +98,7 @@ async fn main() {
             FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
             FOREIGN KEY (product_id) REFERENCES products(id)
         );
-        "#
+        "
     )
     .execute(&pool)
     .await
