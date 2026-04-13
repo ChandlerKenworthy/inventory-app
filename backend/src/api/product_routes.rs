@@ -11,13 +11,14 @@ use crate::state::AppState;
 
 pub async fn get_products(
     State(state): State<Arc<AppState>>
-) -> Json<Vec<ProductResponseItem>> {
+) -> Result<Json<Vec<ProductResponseItem>>, (StatusCode, Json<String>)> {
     let rows = sqlx::query(
         "
         SELECT * FROM products
         "
     ).fetch_all(&state.db)
-    .await.unwrap();
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
     let products = rows.into_iter().map(|row| {
         ProductResponseItem {
@@ -32,7 +33,7 @@ pub async fn get_products(
         }
     }).collect();
 
-    Json(products)
+    Ok(Json(products))
 }
 
 pub async fn get_product_details(

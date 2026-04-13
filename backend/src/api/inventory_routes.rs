@@ -10,14 +10,15 @@ use crate::models::inventory::{InventoryResponseItem, CreateInventoryItem};
 use crate::models::order::OrderItemRecord;
 use crate::state::AppState;
 
-pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<InventoryResponseItem>> {
+pub async fn get_inventory(State(state): State<Arc<AppState>>) 
+-> Result<Json<Vec<InventoryResponseItem>>, (StatusCode, Json<String>)> {
     let rows = sqlx::query(
         r"
         SELECT product_id, quantity, aisle, shelf, bin FROM inventory
         "
     ).fetch_all(&state.db)
     .await
-    .unwrap();
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
     let items = rows.into_iter().map(|row| {
         InventoryResponseItem {
@@ -29,10 +30,11 @@ pub async fn get_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<Inven
         }
     }).collect();
 
-    Json(items)
+    Ok(Json(items))
 }
 
-pub async fn get_instock_inventory(State(state): State<Arc<AppState>>) -> Json<Vec<OrderItemRecord>> {
+pub async fn get_instock_inventory(State(state): State<Arc<AppState>>) 
+-> Result<Json<Vec<OrderItemRecord>>, (StatusCode, Json<String>)> {
     let rows = sqlx::query(
         r"
         SELECT i.product_id, p.name AS product_name, i.quantity, p.price AS unit_price
@@ -41,7 +43,8 @@ pub async fn get_instock_inventory(State(state): State<Arc<AppState>>) -> Json<V
         WHERE i.quantity > 0
         "
     ).fetch_all(&state.db)
-    .await.unwrap();
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
     let items = rows.into_iter().map(|row| {
         OrderItemRecord {
@@ -52,7 +55,7 @@ pub async fn get_instock_inventory(State(state): State<Arc<AppState>>) -> Json<V
         }
     }).collect();
 
-    Json(items)
+    Ok(Json(items))
 }
 
 pub async fn modify_inventory(

@@ -35,7 +35,8 @@ pub async fn get_customer_details(
     }
 }
 
-pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<CustomerWithOrderCount>> {
+pub async fn get_customers(State(state): State<Arc<AppState>>) 
+-> Result<Json<Vec<CustomerWithOrderCount>>, (StatusCode, Json<String>)> {
     let rows = sqlx::query(
         r"
         SELECT c.id, c.first_name, c.second_name, c.email, COUNT(o.id) AS order_count
@@ -44,7 +45,8 @@ pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<Custo
         GROUP BY c.id
         "
     ).fetch_all(&state.db)
-    .await.unwrap();
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
     let customers = rows.into_iter().map(|row| {
         CustomerWithOrderCount {
@@ -56,7 +58,7 @@ pub async fn get_customers(State(state): State<Arc<AppState>>) -> Json<Vec<Custo
         }
     }).collect();
 
-    Json(customers)
+    Ok(Json(customers))
 }
 
 pub async fn add_new_customer(
