@@ -82,8 +82,8 @@ pub async fn create_order(
         VALUES (?, ?, ?, ?, ?)
         "
     )
-    .bind(order_id.clone() as String)
-    .bind(payload.customer_id.clone() as String) 
+    .bind(order_id.clone())
+    .bind(payload.customer_id.clone()) 
     .bind(0_i64) // Status: Pending    // To match INTEGER Sqlite
     .bind(calculated_total_price)  // f64 bind to match REAL
     .bind(now)                            // String (formatted as timestamp)
@@ -130,10 +130,10 @@ pub async fn get_orders(
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
     // Since one order has multiple rows (one per item), group them
-    let mut orders_map: std::collections::BTreeMap<String, OrderResponse> = std::collections::BTreeMap::new();
+    let mut orders_map: std::collections::BTreeMap<Uuid, OrderResponse> = std::collections::BTreeMap::new();
 
     for row in rows {
-        let order_id: String = row.get("id");
+        let order_id: Uuid = row.get("id");
 
         let entry = orders_map.entry(order_id.clone()).or_insert_with(|| OrderResponse {
             id: order_id,
@@ -145,7 +145,7 @@ pub async fn get_orders(
         });
 
         // Add the item info if it exists (LEFT JOIN might return nulls for empty orders)
-        if let Ok(prod_id) = row.try_get::<String, _>("product_id") {
+        if let Ok(prod_id) = row.try_get::<Uuid, _>("product_id") {
             entry.items.push(OrderItemResponse {
                 product_id: prod_id,
                 quantity: row.get("quantity"),
@@ -159,11 +159,11 @@ pub async fn get_orders(
 pub async fn get_orders_summary(
     State(state): State<Arc<AppState>>
 ) -> Result<Json<Vec<OrderSummaryResponse>>, (StatusCode, Json<String>)> {
-    let rows = sqlx::query(
+    let orders_summary = sqlx::query_as::<_, OrderSummaryResponse>(
         r"
         SELECT 
             o.id, o.customer_id, o.status, o.created_at, o.total_price, 
-            SUM(oi.quantity) as number_of_items
+            COALESCE(SUM(oi.quantity), 0) as number_of_items
         FROM orders o
         LEFT JOIN order_items oi ON o.id = oi.order_id
         GROUP BY o.id
@@ -173,17 +173,6 @@ pub async fn get_orders_summary(
     .fetch_all(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
-
-    let orders_summary: Vec<OrderSummaryResponse> = rows.into_iter().map(|row| {
-        OrderSummaryResponse {
-            id: row.get("id"),
-            customer_id: row.get("customer_id"),
-            status: row.get("status"),
-            created_at: row.get("created_at"),
-            total_price: row.get("total_price"),
-            number_of_items: row.get("number_of_items"),
-        }
-    }).collect();
 
     Ok(Json(orders_summary))
 }
@@ -204,7 +193,7 @@ pub async fn get_order_details(
         ORDER BY o.created_at DESC
         "
     )
-    .bind(&order_id.to_string())
+    .bind(&order_id)
     .fetch_all(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
@@ -227,7 +216,7 @@ pub async fn get_order_details(
     // Collect all items from the result set
     for row in rows {
         // try_get ensures we don't crash if an order exists but has 0 items
-        if let Ok(Some(prod_id)) = row.try_get::<Option<String>, _>("product_id") {
+        if let Ok(Some(prod_id)) = row.try_get::<Option<Uuid>, _>("product_id") {
             order.items.push(OrderItemResponse {
                 product_id: prod_id,
                 quantity: row.get("quantity"),
