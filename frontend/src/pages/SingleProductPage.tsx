@@ -6,32 +6,30 @@ import { productService } from "../services/productService";
 import type { UUIDTypes } from "uuid";
 import Barcode from "react-barcode";
 import "../styles/pages/SingleProductPage.css";
+import toast from "react-hot-toast";
 
 export default function SingleProductPage() {
     const { id } = useParams<{ id: string }>();
-
     const [product, setProduct] = useState<ProductItem | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     const fetchProduct = async () => {
-        setLoading(true);
-        const result = await productService.get(id as UUIDTypes);
-        if(result.success) {
-            setProduct(result.data);
-        } else {
-            setError(result.message);
-        }
-        setLoading(false);
+        toast.promise(
+            productService.get(id as UUIDTypes),
+            {
+                loading: "Fetching product details...",
+                success: (result) => {
+                    setProduct(result.data);
+                    return `Product details loaded successfully!`;
+                },
+                error: (err) => `Error fetching product: ${err}`,
+            }
+        );
     };
 
     useEffect(() => {
         if (id) fetchProduct();
     }, [id]);
 
-    // Handle loading and error states
-    if (loading) return <p>Loading product details...</p>;
-    if (error) return <p>Error: {error}</p>;
     if (!product) return <p>No product data found.</p>;
 
     return (

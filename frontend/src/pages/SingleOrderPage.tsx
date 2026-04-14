@@ -8,32 +8,29 @@ import { ClimbingBoxLoader } from "react-spinners";
 import "../styles/pages/SingleOrderPage.css";
 import OrderDetailsRow from "../components/OrderDetailsRow";
 import Barcode from "react-barcode";
+import toast from "react-hot-toast";
 
 export default function SingleOrderPage() {
     const { id } = useParams<{ id: string }>();
     const [order, setOrder] = useState<OrderResponse | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
 
     const fetchOrder = async () => {
-        setLoading(true);
-        const response = await orderService.get_order(id as UUIDTypes);
-        if(response.success && response.data) {
-            setOrder(response.data);
-        }
-        setLoading(false);
+        toast.promise(
+            orderService.get_order(id as UUIDTypes),
+            {
+                loading: "Fetching order details...",
+                success: (result) => {
+                    setOrder(result.data);
+                    return `Order details loaded successfully!`;
+                },
+                error: (err) => `Error fetching order: ${err}`,
+            }
+        );
     };
 
     useEffect(() => {
         fetchOrder();
     }, [id]);
-
-    if(loading) {
-        return (
-            <Page title="Order Details">
-                <ClimbingBoxLoader color="#000" loading={loading} size={15} />
-            </Page>
-        )
-    }
 
     return (
         <Page title="Order Details">

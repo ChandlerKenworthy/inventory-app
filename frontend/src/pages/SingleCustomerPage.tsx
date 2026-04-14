@@ -6,22 +6,24 @@ import type { UUIDTypes } from "uuid";
 import Page from "../components/Page";
 import Barcode from "react-barcode";
 import "../styles/pages/SingleCustomerPage.css";
+import toast from "react-hot-toast";
 
 export default function SingleCustomerPage() {
     const { id } = useParams<{ id: string }>();
-
     const [customer, setCustomer] = useState<CustomerItem | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
     
     const fetchCustomer = async () => {
-        setLoading(true);
-        const result = await customerService.get(id as UUIDTypes);
-        if(result.success) {
-            setCustomer(result.data);
-        } else {
-            alert("Error: " + result.message);
-        }
-        setLoading(false);
+        toast.promise(
+            customerService.get(id as UUIDTypes),
+            {
+                loading: "Fetching customer details...",
+                success: (result) => {
+                    setCustomer(result.data);
+                    return `Customer details loaded successfully!`;
+                },
+                error: (err) => `Error fetching customer: ${err}`,
+            }
+        );
     };
 
     useEffect(() => {
@@ -37,12 +39,11 @@ export default function SingleCustomerPage() {
                 </div>
                 <div className="customer-details-container">
                     <h4 className="title">Customer Details</h4>
-                    {loading && <p>Customer details are loading...</p>}
-                    {!loading && (<ul className="customer-details-list">
+                    <ul className="customer-details-list">
                         <li>First name: {customer?.first_name}</li>
                         <li>Last name: {customer?.second_name}</li>
                         <li>Email: {customer?.email}</li>
-                    </ul>)}
+                    </ul>
 
                     <h4 className="title">Order History</h4>
                     <p>TODO: Add the order history here...</p>                
