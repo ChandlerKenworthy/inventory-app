@@ -6,8 +6,10 @@ use axum::{
 };
 use std::sync::Arc;
 use sqlx::Row;
+use uuid::Uuid;
 use crate::models::product::ProductResponseItem;
 use crate::state::AppState;
+use crate::extractors::ValidatedJson;
 
 pub async fn get_products(
     State(state): State<Arc<AppState>>
@@ -70,7 +72,7 @@ pub async fn get_product_details(
 
 pub async fn add_product(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<ProductResponseItem>
+    ValidatedJson(payload): ValidatedJson<ProductResponseItem>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r"
@@ -96,7 +98,7 @@ pub async fn add_product(
 
 pub async fn delete_product(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<String>
+    Path(id): Path<Uuid>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r"
@@ -104,7 +106,7 @@ pub async fn delete_product(
         WHERE id = ?
         "
     )
-    .bind(id as String)
+    .bind(id.to_string()) // Convert Uuid to String for binding
     .execute(&state.db);
     
     match result.await {

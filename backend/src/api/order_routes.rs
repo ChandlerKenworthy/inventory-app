@@ -5,10 +5,11 @@ use axum::{Json, extract::State, http::StatusCode, extract::Path};
 use sqlx::{Row};
 use uuid::Uuid;
 use chrono::Utc;
+use crate::extractors::ValidatedJson;
 
 pub async fn create_order(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<CreateOrderPayload>
+    ValidatedJson(payload): ValidatedJson<CreateOrderPayload>
 ) -> Result<Json<String>, (StatusCode, Json<String>)> {
     // Begin the transaction (either everything happens or nothing happens)
     let mut tx = state.db.begin().await.map_err(|e| {
@@ -189,7 +190,7 @@ pub async fn get_orders_summary(
 
 pub async fn get_order_details(
     State(state): State<Arc<AppState>>,
-    Path(order_id): Path<String>
+    Path(order_id): Path<Uuid>
 ) -> Result<Json<OrderResponse>, (StatusCode, Json<String>)> {
     // Join orders and order_items to get all details in one query
     let rows = sqlx::query(
@@ -203,7 +204,7 @@ pub async fn get_order_details(
         ORDER BY o.created_at DESC
         "
     )
-    .bind(&order_id)
+    .bind(&order_id.to_string())
     .fetch_all(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
