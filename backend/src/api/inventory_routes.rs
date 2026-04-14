@@ -6,7 +6,6 @@ use axum::{
 };
 use std::sync::Arc;
 use uuid::Uuid;
-use sqlx::Row;
 use crate::models::inventory::{InventoryResponseItem, CreateInventoryItem};
 use crate::models::order::OrderItemRecord;
 use crate::state::AppState;
@@ -14,81 +13,69 @@ use crate::extractors::ValidatedJson;
 
 pub async fn get_inventory(State(state): State<Arc<AppState>>) 
 -> Result<Json<Vec<InventoryResponseItem>>, (StatusCode, Json<String>)> {
-    let rows = sqlx::query(
+    sqlx::query_as::<_, InventoryResponseItem>(
         r"
         SELECT product_id, quantity, aisle, shelf, bin FROM inventory
         "
-    ).fetch_all(&state.db)
+    )
+    .fetch_all(&state.db)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
-
-    let items = rows.into_iter().map(|row| {
-        InventoryResponseItem {
-            product_id: row.get("product_id"),
-            quantity: row.get("quantity"),
-            aisle: row.get("aisle"),
-            shelf: row.get("shelf"),
-            bin: row.get("bin"),
-        }
-    }).collect();
-
-    Ok(Json(items))
+    .map(Json)
+    .map_err(|e| {
+        eprintln!("Error fetching inventory: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
+    })
 }
 
 pub async fn get_instock_inventory(State(state): State<Arc<AppState>>) 
 -> Result<Json<Vec<OrderItemRecord>>, (StatusCode, Json<String>)> {
-    let rows = sqlx::query(
+    sqlx::query_as::<_, OrderItemRecord>(
         r"
         SELECT i.product_id, p.name AS product_name, i.quantity, p.price AS unit_price
         FROM inventory i
         JOIN products p ON i.product_id = p.id
         WHERE i.quantity > 0
         "
-    ).fetch_all(&state.db)
+    )
+    .fetch_all(&state.db)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
-
-    let items = rows.into_iter().map(|row| {
-        OrderItemRecord {
-            product_id: row.get("product_id"),
-            product_name: row.get("product_name"),
-            quantity: row.get("quantity"),
-            unit_price: row.get("unit_price"),
-        }
-    }).collect();
-
-    Ok(Json(items))
+    .map(Json)
+    .map_err(|e| {
+        eprintln!("Error fetching in-stock inventory: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
+    })
 }
 
 pub async fn modify_inventory(
     State(state): State<Arc<AppState>>,
     ValidatedJson(payload): ValidatedJson<CreateInventoryItem>
 ) -> Result<StatusCode, StatusCode> {
-    let result = sqlx::query(
+    sqlx::query(
         r"
         UPDATE inventory
         SET quantity = ?, aisle = ?, shelf = ?, bin = ?
         WHERE product_id = ?
         "
     )
-    .bind(i64::from(payload.quantity))
-    .bind(i64::from(payload.aisle))
-    .bind(i64::from(payload.shelf))
-    .bind(i64::from(payload.bin))
-    .bind(payload.product_id as String) // Match on the ID
-    .execute(&state.db);
-    
-    match result.await {
-        Ok(_) => Ok(StatusCode::OK),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
-    }
+    .bind(payload.quantity)
+    .bind(payload.aisle)
+    .bind(payload.shelf)
+    .bind(payload.bin)
+    .bind(payload.product_id)
+    .execute(&state.db)
+    .await
+    .map(|_| StatusCode::OK)
+    .map_err(|e| {
+        eprintln!("Error updating inventory: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })
 }
 
 pub async fn update_inventory(
     State(state): State<Arc<AppState>>,
     ValidatedJson(payload): ValidatedJson<CreateInventoryItem>
 ) -> Result<StatusCode, StatusCode> {
-    let result = sqlx::query(
+    sqlx::query(
         r"INSERT INTO inventory (product_id, quantity, aisle, shelf, bin)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(product_id)
@@ -96,38 +83,36 @@ pub async fn update_inventory(
             quantity = inventory.quantity + excluded.quantity
         "
     )
-    .bind(payload.product_id as String)
-    .bind(i64::from(payload.quantity))
-    .bind(i64::from(payload.aisle))
-    .bind(i64::from(payload.shelf))
-    .bind(i64::from(payload.bin))
-    .execute(&state.db);
-    
-    match result.await {
-        Ok(_) => Ok(StatusCode::OK),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
-    }
+    .bind(payload.product_id)
+    .bind(payload.quantity)
+    .bind(payload.aisle)
+    .bind(payload.shelf)
+    .bind(payload.bin)
+    .execute(&state.db)
+    .await
+    .map(|_| StatusCode::OK)
+    .map_err(|e| {
+        eprintln!("Error updating inventory: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })
 }
 
 pub async fn delete_inventory_item(
     State(state): State<Arc<AppState>>,
     Path(product_id): Path<Uuid>,
 ) -> Result<StatusCode, StatusCode> {
-    let result = sqlx::query(
-        r"
-        DELETE FROM inventory WHERE product_id = ?
-        "
-    )
-    .bind(product_id.to_string())
-    .execute(&state.db);
+    let result = sqlx::query("DELETE FROM inventory WHERE product_id = ?")
+        .bind(product_id)
+        .execute(&state.db)
+        .await
+        .map_err(|e| {
+            eprintln!("Error deleting inventory item: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
-    match result.await {
-        Ok(res) => {// Check if any rows were actually deleted
-            if res.rows_affected() == 0 {
-                return Err(StatusCode::NOT_FOUND);
-            }
-            Ok(StatusCode::OK)
-        }
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
+    if result.rows_affected() == 0 {
+        return Err(StatusCode::NOT_FOUND);
     }
+    
+    Ok(StatusCode::OK)
 }

@@ -27,7 +27,7 @@ async fn main() {
     sqlx::query(
         r"
         CREATE TABLE IF NOT EXISTS inventory (
-            product_id TEXT PRIMARY KEY,
+            product_id BLOB PRIMARY KEY,
             quantity INTEGER NOT NULL,
             aisle INTEGER,
             shelf INTEGER,
@@ -42,7 +42,7 @@ async fn main() {
     sqlx::query(
         r"
         CREATE TABLE IF NOT EXISTS customers (
-            id TEXT PRIMARY KEY,
+            id BLOB PRIMARY KEY,
             first_name TEXT NOT NULL,
             second_name TEXT NOT NULL,
             email TEXT NOT NULL
@@ -56,7 +56,7 @@ async fn main() {
     sqlx::query(
         r"
         CREATE TABLE IF NOT EXISTS products (
-            id TEXT PRIMARY KEY,
+            id BLOB PRIMARY KEY,
             name TEXT NOT NULL,
             is_fragile BOOLEAN NOT NULL DEFAULT FALSE,
             weight REAL NOT NULL,
@@ -74,8 +74,8 @@ async fn main() {
     sqlx::query(
         r"
         CREATE TABLE IF NOT EXISTS orders (
-            id TEXT PRIMARY KEY NOT NULL,
-            customer_id TEXT NOT NULL,
+            id BLOB PRIMARY KEY NOT NULL,
+            customer_id BLOB NOT NULL,
             status INTEGER NOT NULL DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             delivery_date TIMESTAMP,
@@ -91,9 +91,9 @@ async fn main() {
     sqlx::query(
         r"
         CREATE TABLE IF NOT EXISTS order_items (
-            id TEXT PRIMARY KEY NOT NULL,
-            order_id TEXT NOT NULL,
-            product_id TEXT NOT NULL,
+            id BLOB PRIMARY KEY NOT NULL,
+            order_id BLOB NOT NULL,
+            product_id BLOB NOT NULL,
             quantity INTEGER NOT NULL CHECK (quantity > 0),
             unit_price REAL NOT NULL,
             FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
