@@ -1,6 +1,5 @@
 import { CUSTOMERS_ENDPOINT } from "./constants";
 import type { CustomerItem, CustomerWithOrderCount, ServiceResponse } from "../Types";
-import type { NewCustomerFormData } from "../schema/CustomerSchema";
 import type { UUIDTypes } from "uuid";
 
 export const customerService = {
@@ -29,7 +28,7 @@ export const customerService = {
         }
     },
 
-    async add(data: NewCustomerFormData): Promise<ServiceResponse<null>> {
+    async add(data: CustomerItem): Promise<ServiceResponse<null>> {
         try {
             const response = await fetch(CUSTOMERS_ENDPOINT, {
                 method: "POST",
