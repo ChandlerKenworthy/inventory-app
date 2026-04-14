@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomerSchema, { type NewCustomerFormData } from "../../schema/CustomerSchema";
 import { customerService } from "../../services/customerService";
+import type { CustomerItem } from "../../Types";
 import { v4 as uuid } from "uuid";
 import toast from "react-hot-toast";
 
@@ -30,7 +31,7 @@ export default function AddNewCustomerForm({ onSuccess }: CustomerFormProps) {
     const sendData = {
       ...data,
       id: uuid() // Generate a new UUID for the customer ID on form submission
-    }
+    } as CustomerItem; // Cast to CustomerItem since it has the same fields as NewCustomerFormData plus the generated id
     toast.promise(
       customerService.add(sendData),
       {

@@ -5,10 +5,12 @@ use axum::{
     extract::Path,
 };
 use std::sync::Arc;
+use uuid::Uuid;
 use sqlx::Row;
 use crate::models::inventory::{InventoryResponseItem, CreateInventoryItem};
 use crate::models::order::OrderItemRecord;
 use crate::state::AppState;
+use crate::extractors::ValidatedJson;
 
 pub async fn get_inventory(State(state): State<Arc<AppState>>) 
 -> Result<Json<Vec<InventoryResponseItem>>, (StatusCode, Json<String>)> {
@@ -60,7 +62,7 @@ pub async fn get_instock_inventory(State(state): State<Arc<AppState>>)
 
 pub async fn modify_inventory(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<CreateInventoryItem>
+    ValidatedJson(payload): ValidatedJson<CreateInventoryItem>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r"
@@ -84,7 +86,7 @@ pub async fn modify_inventory(
 
 pub async fn update_inventory(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<CreateInventoryItem>
+    ValidatedJson(payload): ValidatedJson<CreateInventoryItem>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r"INSERT INTO inventory (product_id, quantity, aisle, shelf, bin)
@@ -109,14 +111,14 @@ pub async fn update_inventory(
 
 pub async fn delete_inventory_item(
     State(state): State<Arc<AppState>>,
-    Path(product_id): Path<String>, // Extracts {id} from the URL
+    Path(product_id): Path<Uuid>,
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r"
         DELETE FROM inventory WHERE product_id = ?
         "
     )
-    .bind(product_id)
+    .bind(product_id.to_string())
     .execute(&state.db);
 
     match result.await {

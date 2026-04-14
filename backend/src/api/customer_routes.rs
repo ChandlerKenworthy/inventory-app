@@ -4,21 +4,24 @@ use axum::{
     http::StatusCode,
     extract::Path,
 };
+use uuid::Uuid;
 use std::sync::Arc;
 use sqlx::Row;
 use crate::models::customer::{Customer, CustomerWithOrderCount};
 use crate::state::AppState;
+use crate::extractors::ValidatedJson;
 
 pub async fn get_customer_details(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<String>
+    Path(id): Path<Uuid>
 ) -> Result<Json<Customer>, StatusCode> {
     let row = sqlx::query(
         r"
         SELECT * FROM customers
         WHERE id = ?
         "
-    ).bind(id as String).fetch_one(&state.db).await;
+    ).bind(id.to_string())
+    .fetch_one(&state.db).await;
 
     match row {
         Ok(row) => {
@@ -63,7 +66,7 @@ pub async fn get_customers(State(state): State<Arc<AppState>>)
 
 pub async fn add_new_customer(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<Customer>
+    ValidatedJson(payload): ValidatedJson<Customer>
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r"
@@ -89,14 +92,14 @@ pub async fn add_new_customer(
 
 pub async fn delete_customer(
     State(state): State<Arc<AppState>>,
-    Path(customer_id): Path<String>, // Extracts {id} from the URL
+    Path(customer_id): Path<Uuid>, // Axum will only accept valid UUIDs, i.e. validation is done safely
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
         r"
         DELETE FROM customers WHERE id = ?
         "
     )
-    .bind(customer_id as String)
+    .bind(customer_id.to_string())
     .execute(&state.db);
 
     match result.await {

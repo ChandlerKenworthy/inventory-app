@@ -1,15 +1,18 @@
 // use chrono::{DateTime, Utc, NaiveDate};
 use serde::{Serialize, Deserialize};
+use validator::Validate;
 
-#[derive(Deserialize)] // Used when making new orders
+#[derive(Deserialize, Validate)] // Used when making new orders
 pub struct CreateOrderPayload {
     pub customer_id: String,
+    #[validate(length(min = 1, message = "Order must contain at least one item"))]
     pub items: Vec<OrderItemInput>,
 }
 
-#[derive(Deserialize)] // Used when making new orders
+#[derive(Deserialize, Serialize, Validate)] // Used when making new orders
 pub struct OrderItemInput {
     pub product_id: String,
+    #[validate(range(min = 1, message = "Quantity must be a positive integer"))]
     pub quantity: i32,
 }
 
