@@ -13,6 +13,7 @@ use sqlx::sqlite::SqlitePool;
 mod models;
 mod api;
 mod state;
+mod extractors;
 
 use state::AppState;
 
@@ -107,24 +108,28 @@ async fn main() {
     let state = Arc::new(AppState { db: pool });
 
     let app = Router::new()
+        // Inventory CRUD routes
         .route("/api/inventory/instock", get(api::inventory_routes::get_instock_inventory))
         .route("/api/inventory", get(api::inventory_routes::get_inventory))
         .route("/api/inventory", post(api::inventory_routes::update_inventory))
+        .route("/api/inventory/{id}", delete(api::inventory_routes::delete_inventory_item))
         .route("/api/modify_inventory", post(api::inventory_routes::modify_inventory))
+        // Customer CRUD routes
         .route("/api/customers", get(api::customer_routes::get_customers))
         .route("/api/customers", post(api::customer_routes::add_new_customer))
-        .route("/api/health", get(api::status_routes::get_status))
-        .route("/api/products", get(api::product_routes::get_products))
-        .route("/api/products", post(api::product_routes::add_product))
-        .route("/api/inventory/{id}", delete(api::inventory_routes::delete_inventory_item))
-        .route("/api/products/{id}", delete(api::product_routes::delete_product))
-        .route("/api/products/{id}", get(api::product_routes::get_product_details))
         .route("/api/customers/{id}", get(api::customer_routes::get_customer_details))
         .route("/api/customers/{id}", delete(api::customer_routes::delete_customer))
+        // Routes for CRUD operations on products
+        .route("/api/products", get(api::product_routes::get_products))
+        .route("/api/products", post(api::product_routes::add_product))
+        .route("/api/products/{id}", delete(api::product_routes::delete_product))
+        .route("/api/products/{id}", get(api::product_routes::get_product_details))
+        // Routes for CRUD operations on orders
         .route("/api/orders", get(api::order_routes::get_orders)) // For all orders
         .route("/api/orders/summary", get(api::order_routes::get_orders_summary)) // For summary of all orders
         .route("/api/orders/{id}", get(api::order_routes::get_order_details)) // For a single order
         .route("/api/orders", post(api::order_routes::create_order))
+        .route("/api/health", get(api::status_routes::get_status))        
         .route("/api/query", post(api::special_routes::run_custom_query))
         .with_state(state);
 
