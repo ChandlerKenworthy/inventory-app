@@ -20,8 +20,8 @@ export default function ProductItemRow(
                 {product.id}
             </Link>
             <span>{product.name}</span>
-            <span>{product.weight.toFixed(2)}</span>
-            <span>{product.width} x {product.height} x {product.depth}</span>
+            <span>{product.dimensions.weight.toFixed(2)}</span>
+            <span>{product.dimensions.width} x {product.dimensions.height} x {product.dimensions.depth}</span>
             <span>{product.is_fragile ? "Yes" : "No"}</span>
             <span>£{product.price.toFixed(2)}</span>
             <button

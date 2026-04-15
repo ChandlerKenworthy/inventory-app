@@ -73,6 +73,13 @@ export type InventoryItem = {
   location: LocationInformation
 }
 
+export type Dimensions = {
+    weight: number;
+    width: number;
+    height: number;
+    depth: number;
+}
+
 // For viewing what products are in the catalogue and at what current price, note when making orders
 // the price paid is drawn from the product catalogue the moment the order is taken - this information
 // is recorded in the order separate from the product catalogue.
@@ -80,10 +87,7 @@ export type ProductItem = {
   id: UUIDTypes,
   name: string,
   is_fragile: boolean,
-  weight: number,
-  width: number,
-  height: number,
-  depth: number,
+  dimensions: Dimensions,
   price: number,
 }
 

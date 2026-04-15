@@ -43,10 +43,10 @@ export default function SingleProductPage() {
                 <div className="product-details-wrapper">
                     <h3>Product Details</h3>
                     <ul>
-                        <li><strong>Weight:</strong> {product.weight} (kg)</li>
-                        <li><strong>Width:</strong> {product.width} (cm)</li>
-                        <li><strong>Height:</strong> {product.height} (cm)</li>
-                        <li><strong>Depth:</strong> {product.depth} (cm)</li>
+                        <li><strong>Weight:</strong> {product.dimensions.weight} (kg)</li>
+                        <li><strong>Width:</strong> {product.dimensions.width} (cm)</li>
+                        <li><strong>Height:</strong> {product.dimensions.height} (cm)</li>
+                        <li><strong>Depth:</strong> {product.dimensions.depth} (cm)</li>
                         <li><strong>Price:</strong> £{product.price.toFixed(2)}</li>
                     </ul>
                 </div>

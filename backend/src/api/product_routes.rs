@@ -6,7 +6,7 @@ use axum::{
 };
 use std::sync::Arc;
 use uuid::Uuid;
-use crate::models::product::{ProductResponseItem, ProductDetails, ProductDetailsRow};
+use crate::models::product::{ProductResponseItem, ProductDetails, ProductDetailsRow, Dimensions};
 use crate::models::inventory::LocationInformation;
 use crate::state::AppState;
 use crate::extractors::ValidatedJson;
@@ -62,10 +62,12 @@ pub async fn get_product_details(
         id: first.id,
         name: first.name.clone(),
         is_fragile: first.is_fragile,
-        weight: first.weight,
-        width: first.width,
-        height: first.height,
-        depth: first.depth,
+        dimensions: Dimensions {
+            weight: first.dimensions.weight,
+            width: first.dimensions.width,
+            height: first.dimensions.height,
+            depth: first.dimensions.depth,
+        },
         price: first.price,
         inventory: Vec::new(),
     };
@@ -98,10 +100,10 @@ pub async fn add_product(
     .bind(payload.id)
     .bind(payload.name)
     .bind(payload.is_fragile)
-    .bind(payload.weight)
-    .bind(payload.width)
-    .bind(payload.height)
-    .bind(payload.depth)
+    .bind(payload.dimensions.weight)
+    .bind(payload.dimensions.width)
+    .bind(payload.dimensions.height)
+    .bind(payload.dimensions.depth)
     .bind(payload.price)
     .execute(&state.db)
     .await
