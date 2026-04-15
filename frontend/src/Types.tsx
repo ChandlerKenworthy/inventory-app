@@ -58,14 +58,19 @@ export interface ServiceResponse<T> {
     data?: T;
 }
 
+// Defines the amount of a product at a particular location in the inventory
+export type LocationInformation ={
+    quantity: number;
+    aisle: number;
+    shelf: number;
+    bin: number;
+}
+
 // The amount, and of which product, in a particular location in the inventory
 // for now products cannot have duplicate locations
 export type InventoryItem = {
   product_id: UUIDTypes,
-  quantity: number
-  aisle: number
-  shelf: number
-  bin: number
+  location: LocationInformation
 }
 
 // For viewing what products are in the catalogue and at what current price, note when making orders

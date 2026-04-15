@@ -62,10 +62,12 @@ export const inventoryService = {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ 
                     product_id: id,
-                    quantity: 1,
-                    aisle: 0,
-                    shelf: 0,
-                    bin: 0
+                    location: {
+                        quantity: 1,
+                        aisle: 0,
+                        shelf: 0,
+                        bin: 0
+                    }
                 }),
             });
             const contentType = response.headers.get("content-type");
