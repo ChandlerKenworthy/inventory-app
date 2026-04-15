@@ -6,7 +6,8 @@ use axum::{
 };
 use std::sync::Arc;
 use uuid::Uuid;
-use crate::models::product::ProductResponseItem;
+use crate::models::product::{ProductResponseItem, ProductDetails, ProductDetailsRow};
+use crate::models::inventory::LocationInformation;
 use crate::state::AppState;
 use crate::extractors::ValidatedJson;
 
@@ -29,16 +30,59 @@ pub async fn get_products(
 pub async fn get_product_details(
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>
-) -> Result<Json<ProductResponseItem>, StatusCode> {
-    sqlx::query_as::<_, ProductResponseItem>("SELECT * FROM products WHERE id = ?")
+) -> Result<Json<ProductDetails>, StatusCode> {
+    // Note this is future-proofed to handle multiple inventory locations per product, even though our current schema only supports one
+    let rows = sqlx::query_as::<_, ProductDetailsRow>(
+        r"
+        SELECT p.id, p.name, p.is_fragile, p.weight, p.width, p.height, p.depth, p.price,
+               COALESCE(i.quantity, 0) AS quantity,
+               COALESCE(i.aisle, 0) AS aisle,
+               COALESCE(i.shelf, 0) AS shelf,
+               COALESCE(i.bin, 0) AS bin
+        FROM products p
+        LEFT JOIN inventory i ON p.id = i.product_id
+        WHERE p.id = ?
+        "
+    )
     .bind(id)
-    .fetch_one(&state.db)
+    .fetch_all(&state.db)
     .await
-    .map(Json)
     .map_err(|e| {
         eprintln!("Error fetching product details: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
-    })
+    })?;
+
+    if rows.is_empty() {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    // Since it's a join on a single product ID, metadata is the same for all rows
+    let first = &rows[0];
+    let mut product_response = ProductDetails {
+        id: first.id,
+        name: first.name.clone(),
+        is_fragile: first.is_fragile,
+        weight: first.weight,
+        width: first.width,
+        height: first.height,
+        depth: first.depth,
+        price: first.price,
+        inventory: Vec::new(),
+    };
+
+    // Extract items from rows (skipping if product_id is NULL)
+    for row in rows {
+        if let (Some(qty), Some(aisle), Some(shelf), Some(bin)) = (row.quantity, row.aisle, row.shelf, row.bin) {
+            product_response.inventory.push(LocationInformation {
+                quantity: qty,
+                aisle: aisle,
+                shelf: shelf,
+                bin: bin,
+            });
+        }
+    }
+
+    Ok(Json(product_response))
 }
 
 pub async fn add_product(

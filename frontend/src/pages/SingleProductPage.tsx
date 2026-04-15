@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { ProductItem } from "../Types";
+import type { ProductItemWithLocationInfo } from "../Types";
 import Page from "../components/Page";
 import { productService } from "../services/productService";
 import type { UUIDTypes } from "uuid";
@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 
 export default function SingleProductPage() {
     const { id } = useParams<{ id: string }>();
-    const [product, setProduct] = useState<ProductItem | null>(null);
+    const [product, setProduct] = useState<ProductItemWithLocationInfo | null>(null);
 
     const fetchProduct = async () => {
         toast.promise(
@@ -52,15 +52,38 @@ export default function SingleProductPage() {
                 </div>
 
                 <div className="product-details-wrapper">
-                    <h3>Inventory Availability</h3>
-                    <ul>
-                        <li><strong>Quantity:</strong>  ??</li>
-                        <li><strong>Aisle:</strong> ??</li>
-                        <li><strong>Shelf:</strong>  ??</li>
-                        <li><strong>Location:</strong> ??</li>
-                    </ul>
+                    <h3 className="title">Inventory Availability</h3>
+                    {product.inventory && product.inventory.length > 0 ? (
+                        <div className="inventory-table-container">
+                            <table className="inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Aisle</th>
+                                        <th>Shelf</th>
+                                        <th>Bin</th>
+                                        <th className="text-right">Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {product.inventory.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{item.aisle}</td>
+                                            <td>{item.shelf}</td>
+                                            <td>{item.bin}</td>
+                                            <td className="text-right font-mono">
+                                                <span className={item.quantity > 0 ? "in-stock" : "out-of-stock"}>
+                                                    {item.quantity}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <p className="no-inventory">No inventory data available for this product.</p>
+                    )}
                 </div>                
-
             </div>
         </Page>
     );

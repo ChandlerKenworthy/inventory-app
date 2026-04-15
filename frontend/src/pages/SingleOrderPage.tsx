@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import type { OrderItemResponse, OrderResponse } from "../Types";
 import { orderService } from "../services/orderService";
 import type { UUIDTypes } from "uuid";
-import { ClimbingBoxLoader } from "react-spinners";
 import "../styles/pages/SingleOrderPage.css";
 import OrderDetailsRow from "../components/OrderDetailsRow";
 import Barcode from "react-barcode";
@@ -43,7 +42,7 @@ export default function SingleOrderPage() {
                     <p><strong>Status:</strong> {order?.status}</p>
                     <p><strong>Total Price:</strong> £{order?.total_price.toFixed(2)}</p>
                 </div>
-                <Barcode value={order?.id || ""} format="CODE128" width={1} height={60} displayValue={true} />
+                {order && <Barcode value={order.id} format="CODE128" width={1} height={60} displayValue={true} />}
             </div>
             <h3>Items</h3>
             <div className="order-details-table">

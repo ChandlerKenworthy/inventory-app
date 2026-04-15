@@ -2,6 +2,14 @@ use serde::{Serialize, Deserialize};
 use validator::Validate;
 use uuid::Uuid;
 
+#[derive(Serialize, sqlx::FromRow)]
+pub struct LocationInformation {
+    pub quantity: u32,
+    pub aisle: u16,
+    pub shelf: u16,
+    pub bin: u16,
+}
+
 #[derive(Serialize, Clone, Validate, sqlx::FromRow)]
 pub struct InventoryResponseItem {
     pub product_id: Uuid,

@@ -82,6 +82,15 @@ export type ProductItem = {
   price: number,
 }
 
+export type ProductItemWithLocationInfo = ProductItem & {
+  inventory: {
+    quantity: number
+    aisle: number
+    shelf: number
+    bin: number
+  }[]
+}
+
 // For collating all the relevant customer information together
 export type CustomerItem = {
   id: UUIDTypes,

@@ -1,6 +1,36 @@
 use serde::{Serialize, Deserialize};
 use validator::Validate;
+use crate::models::inventory::LocationInformation;
 use uuid::Uuid;
+
+#[derive(Serialize, sqlx::FromRow)]
+pub struct ProductDetails {
+    pub id: Uuid,
+    pub name: String,
+    pub is_fragile: bool,
+    pub weight: f32,
+    pub width: f32,
+    pub height: f32,
+    pub depth: f32,
+    pub price: f32,
+    pub inventory: Vec<LocationInformation>,
+}
+
+#[derive(Serialize, sqlx::FromRow)]
+pub struct ProductDetailsRow {
+    pub id: Uuid,
+    pub name: String,
+    pub is_fragile: bool,
+    pub weight: f32,
+    pub width: f32,
+    pub height: f32,
+    pub depth: f32,
+    pub price: f32,
+    pub quantity: Option<u32>,
+    pub aisle: Option<u16>,
+    pub shelf: Option<u16>,
+    pub bin: Option<u16>,
+}
 
 #[derive(Deserialize, Serialize, Clone, Validate, sqlx::FromRow)]
 pub struct ProductResponseItem {
