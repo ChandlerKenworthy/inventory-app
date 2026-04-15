@@ -90,6 +90,19 @@ export type CustomerItem = {
   email: string,
 }
 
+// For displaying customer details on the SingleCustomerPage, including their order history
+export type CustomerWithOrderHistory = {
+  id: UUIDTypes,
+  first_name: string,
+  second_name: string,
+  email: string,
+  orders: {
+    order_id: UUIDTypes,
+    created_at: string,
+    total_price: number
+  }[]
+}
+
 // For displaying customers in a table on the CustomersPage and showing how many orders they have made, this is more efficient than having to fetch all the orders for each customer just to count them
 export type CustomerWithOrderCount = {
   id: UUIDTypes,

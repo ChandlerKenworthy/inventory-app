@@ -1,5 +1,5 @@
-import { useParams } from "react-router-dom";
-import type { CustomerItem } from "../Types";
+import { Link, useParams } from "react-router-dom";
+import type { CustomerWithOrderHistory } from "../Types";
 import { useEffect, useState } from "react";
 import { customerService } from "../services/customerService";
 import type { UUIDTypes } from "uuid";
@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 
 export default function SingleCustomerPage() {
     const { id } = useParams<{ id: string }>();
-    const [customer, setCustomer] = useState<CustomerItem | null>(null);
+    const [customer, setCustomer] = useState<CustomerWithOrderHistory | null>(null);
     
     const fetchCustomer = async () => {
         toast.promise(
@@ -46,7 +46,24 @@ export default function SingleCustomerPage() {
                     </ul>
 
                     <h4 className="title">Order History</h4>
-                    <p>TODO: Add the order history here...</p>                
+                    <div className="customer-order-history-table">
+                        <div className="customer-order-history-row header">
+                            <div className="customer-order-history-cell">Order ID</div>
+                            <div className="customer-order-history-cell">Created At</div>
+                            <div className="customer-order-history-cell">Total Price</div>
+                        </div>
+                        {customer?.orders.map(order => (
+                            <div key={order.order_id} className="customer-order-history-row">
+                                <div className="customer-order-history-cell">
+                                    <Link to={`/orders/${order.order_id}`}>
+                                        {order.order_id}
+                                    </Link>
+                                </div>
+                                <div className="customer-order-history-cell">{new Date(order.created_at).toLocaleString()}</div>
+                                <div className="customer-order-history-cell">£{order.total_price.toFixed(2)}</div>
+                            </div>
+                        ))}
+                    </div>               
                 </div>
             </div>
         </Page>

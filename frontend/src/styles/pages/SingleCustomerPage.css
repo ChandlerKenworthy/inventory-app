@@ -15,7 +15,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-
+    width: 100%;
 }
 
 .customer-details-container .title {
@@ -24,4 +24,79 @@
 
 .customer-details-list {
     margin-top: 0;
+}
+
+/* Container styling */
+.customer-order-history-table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden; /* Keeps the rounded corners tidy */
+    background-color: #ffffff;
+    font-family: sans-serif;
+}
+
+/* Row setup using CSS Grid */
+.customer-order-history-row {
+    display: grid;
+    /* Defines 3 columns: 2fr for the long ID, 1fr for date, 1fr for price */
+    grid-template-columns: 2fr 1.5fr 1fr; 
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+/* Remove border from the last row */
+.customer-order-history-row:last-child {
+    border-bottom: none;
+}
+
+/* Header specific styling */
+.customer-order-history-row.header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #4a4a4a;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* Hover effect for data rows */
+.customer-order-history-row:not(.header):hover {
+    background-color: #fbfbfb;
+}
+
+/* Cell padding and alignment */
+.customer-order-history-cell {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Gracefully handles long UUIDs */
+    white-space: nowrap;
+}
+
+/* Align the price column to the right for better readability */
+.customer-order-history-cell:last-child {
+    text-align: right;
+    font-family: 'Courier New', Courier, monospace; /* Optional: Monospaced for numbers */
+    font-weight: 500;
+}
+
+/* Styling the Order Link */
+.customer-order-history-cell a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.customer-order-history-cell a:hover {
+    text-decoration: underline;
+}
+
+/* Title styling */
+.title {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    color: #222;
 }

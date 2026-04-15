@@ -64,3 +64,10 @@ pub struct OrderItemRecord {
     pub quantity: u32,
     pub unit_price: f64,
 }
+
+#[derive(Serialize, sqlx::FromRow)]
+pub struct OrderBriefResponse {
+    pub order_id: Uuid,
+    pub created_at: String,
+    pub total_price: f64,
+}

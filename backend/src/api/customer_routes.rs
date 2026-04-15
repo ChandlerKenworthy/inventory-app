@@ -6,28 +6,59 @@ use axum::{
 };
 use uuid::Uuid;
 use std::sync::Arc;
-use crate::models::customer::{Customer, CustomerWithOrderCount};
+use crate::models::customer::{Customer, CustomerWithOrderCount, CustomerWithOrderHistory, CustomerRow};
+use crate::models::order::OrderBriefResponse;
 use crate::state::AppState;
 use crate::extractors::ValidatedJson;
 
 pub async fn get_customer_details(
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>
-) -> Result<Json<Customer>, StatusCode> {
-    sqlx::query_as::<_, Customer>(
+) -> Result<Json<CustomerWithOrderHistory>, (StatusCode, Json<String>)> {
+    let rows = sqlx::query_as::<_, CustomerRow>(
         r"
-        SELECT * FROM customers
-        WHERE id = ?
+        SELECT 
+            c.id, c.first_name, c.second_name, c.email, 
+            o.id AS order_id, o.created_at, o.total_price
+        FROM customers c
+        LEFT JOIN orders o ON c.id = o.customer_id
+        WHERE c.id = ?
         "
     )
     .bind(id)
-    .fetch_one(&state.db)
+    .fetch_all(&state.db)
     .await
-    .map(Json)
-    .map_err(|e| match e {
-            sqlx::Error::RowNotFound => StatusCode::NOT_FOUND,
-            _ => StatusCode::INTERNAL_SERVER_ERROR,
-        })
+    .map_err(|e| {
+        eprintln!("Error fetching customer details: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
+    })?;
+
+    if rows.is_empty() {
+        return Err((StatusCode::NOT_FOUND, Json("Customer not found".into())));
+    }
+
+    // Since it's a join on a single customer ID, metadata is the same for all rows
+    let first = &rows[0];
+    let mut customer_response = CustomerWithOrderHistory {
+        first_name: first.first_name.clone(),
+        second_name: first.second_name.clone(),
+        email: first.email.clone(),
+        id: first.id,
+        orders: Vec::new(),
+    };
+
+    // Extract items from rows (skipping if product_id is NULL)
+    for row in rows {
+        if let (Some(o_id), Some(created_at), Some(total_price)) = (row.order_id, row.created_at, row.total_price) {
+            customer_response.orders.push(OrderBriefResponse {
+                order_id: o_id,
+                created_at: created_at,
+                total_price: total_price,
+            });
+        }
+    }
+
+    Ok(Json(customer_response))
 }
 
 pub async fn get_customers(State(state): State<Arc<AppState>>) 
