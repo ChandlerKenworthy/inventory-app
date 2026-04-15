@@ -37,16 +37,19 @@ export default function StatusPage() {
                     <GoDatabase size={20} />
                     <h3>Database Information</h3>
                 </div>
-                <div className="db-stats-container">
-                    {dbInfo.map(table => (
-                        <div key={table.table_name} className="db-stat-item">
-                            <span className="table-name">{table.table_name}</span>
-                            <span className="table-size">
-                                {table.size_mb < 0.01 ? '< 0.01 MB' : `${table.size_mb.toFixed(2)} MB`}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+                {dbInfo.length !== 0 && (
+                    <div className="db-stats-container">
+                        {dbInfo.map(table => (
+                            <div key={table.table_name} className="db-stat-item">
+                                <span className="table-name">{table.table_name}</span>
+                                <span className="table-size">
+                                    {table.size_mb < 0.01 ? '< 0.01 MB' : `${table.size_mb.toFixed(2)} MB`}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                {dbInfo.length === 0 && <p>No database information available. The connection to the database is probably down.</p>}
 
                 <div className="header-content">
                     <GoCpu size={20} />
