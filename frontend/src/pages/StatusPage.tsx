@@ -6,18 +6,28 @@ import "../styles/pages/StatusPage.css";
 import { useEffect, useState } from "react";
 import type { TableStatus } from "../Types";
 import { monitoringService } from "../services/monitoringService";
+import toast from "react-hot-toast";
 
 export default function StatusPage() {
     const { status, lastChecked } = useHealthCheck(5000); // poll every 5s
     const [dbInfo, setDbInfo] = useState<TableStatus[]>([]);
 
     const fetchDbStatus = async () => {
-        const response = await monitoringService.get_db_status();
-        if (response.success && response.data) {
-            setDbInfo(response.data);
-        } else {
-            console.error("Failed to fetch database status:", response.message);
-        }
+        toast.promise(
+            monitoringService.get_db_status(),
+            {
+                loading: 'Fetching database status...',
+                success: (response) => {
+                    if (response.success && response.data) {
+                        setDbInfo(response.data);
+                        return "Database status fetched successfully";
+                    } else {
+                        throw new Error(response.message || "Failed to fetch database status");
+                    }
+                },
+                error: (err) => `Error: ${err.message || "Could not fetch database status"}`
+            }
+        );
     };
 
     useEffect(() => {

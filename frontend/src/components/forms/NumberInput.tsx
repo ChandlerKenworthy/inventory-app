@@ -15,12 +15,13 @@ export default function NumberInput({
     ...rest // catches name, ref, onChange, onBlur from register()
 }: NumberInputProps) {
     return (
-        <div>
+        <div className="input-container">
             <label htmlFor={label}>{description}:</label>
             <input 
                 name={label} 
                 placeholder={description} 
                 type={input_type}
+                className={"text-input " + (error ? "input-error" : "")}
                 required={is_required}
                 step="any"
                 aria-invalid={!!error}

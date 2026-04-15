@@ -1,3 +1,5 @@
+import "../../styles/components/forms/TextInput.css";
+
 interface TextInputProps {
   label: string;
   description: string;
@@ -15,10 +17,11 @@ export default function TextInput({
   ...rest // catches name, ref, onChange, onBlur from register()
 }: TextInputProps) {
   return (
-    <div>
+    <div className="input-container">
       <label htmlFor={label}>{description}:</label>
       <input
         id={label}
+        className={"text-input " + (error ? "input-error" : "")}
         name={label}
         placeholder={description}
         type={input_type}
