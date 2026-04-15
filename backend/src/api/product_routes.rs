@@ -22,7 +22,7 @@ pub async fn get_products(
     .await
     .map(Json)
     .map_err(|e| {
-        eprintln!("Error fetching products: {}", e);
+        eprintln!("Error fetching products: {e}");
         (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
     })
 }
@@ -48,7 +48,7 @@ pub async fn get_product_details(
     .fetch_all(&state.db)
     .await
     .map_err(|e| {
-        eprintln!("Error fetching product details: {}", e);
+        eprintln!("Error fetching product details: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -77,9 +77,9 @@ pub async fn get_product_details(
         if let (Some(qty), Some(aisle), Some(shelf), Some(bin)) = (row.quantity, row.aisle, row.shelf, row.bin) {
             product_response.inventory.push(LocationInformation {
                 quantity: qty,
-                aisle: aisle,
-                shelf: shelf,
-                bin: bin,
+                aisle,
+                shelf,
+                bin,
             });
         }
     }
@@ -109,7 +109,7 @@ pub async fn add_product(
     .await
     .map(|_| StatusCode::CREATED)
     .map_err(|e| {
-        eprintln!("Error adding product: {}", e);
+        eprintln!("Error adding product: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })
 }
@@ -123,7 +123,7 @@ pub async fn delete_product(
         .execute(&state.db)
         .await
         .map_err(|e| {
-            eprintln!("Error deleting product: {}", e);
+            eprintln!("Error deleting product: {e}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 

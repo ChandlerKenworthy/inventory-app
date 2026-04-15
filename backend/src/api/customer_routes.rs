@@ -29,7 +29,7 @@ pub async fn get_customer_details(
     .fetch_all(&state.db)
     .await
     .map_err(|e| {
-        eprintln!("Error fetching customer details: {}", e);
+        eprintln!("Error fetching customer details: {e}");
         (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
     })?;
 
@@ -52,8 +52,8 @@ pub async fn get_customer_details(
         if let (Some(o_id), Some(created_at), Some(total_price)) = (row.order_id, row.created_at, row.total_price) {
             customer_response.orders.push(OrderBriefResponse {
                 order_id: o_id,
-                created_at: created_at,
-                total_price: total_price,
+                created_at,
+                total_price,
             });
         }
     }
@@ -75,7 +75,7 @@ pub async fn get_customers(State(state): State<Arc<AppState>>)
     .await
     .map(Json)
     .map_err(|e| {
-        eprintln!("Error fetching customers: {}", e);
+        eprintln!("Error fetching customers: {e}");
         (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
     })
 }
@@ -102,7 +102,7 @@ pub async fn add_new_customer(
     .await
     .map(|_| StatusCode::CREATED)
     .map_err(|e| {
-        eprintln!("Error adding customer: {}", e);
+        eprintln!("Error adding customer: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })
 }
@@ -116,7 +116,7 @@ pub async fn delete_customer(
         .execute(&state.db)
         .await
         .map_err(|e| {
-            eprintln!("Error deleting customer: {}", e);
+            eprintln!("Error deleting customer: {e}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 

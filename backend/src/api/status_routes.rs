@@ -15,7 +15,7 @@ pub async fn get_db_status(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<TableStatus>>, StatusCode> {
     let rows = sqlx::query_as::<_, TableStatus>(
-        r#"
+        r"
         SELECT 
             /* Extract the base table name from index names (e.g., 'orders_1' -> 'orders') */
             CASE 
@@ -32,7 +32,7 @@ pub async fn get_db_status(
           AND name NOT LIKE 'sqlite_%'
         GROUP BY table_name
         ORDER BY table_name ASC;
-        "#
+        "
     )
     .fetch_all(&state.db)
     .await

@@ -22,7 +22,7 @@ pub async fn get_inventory(State(state): State<Arc<AppState>>)
     .await
     .map(Json)
     .map_err(|e| {
-        eprintln!("Error fetching inventory: {}", e);
+        eprintln!("Error fetching inventory: {e}");
         (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
     })
 }
@@ -41,7 +41,7 @@ pub async fn get_instock_inventory(State(state): State<Arc<AppState>>)
     .await
     .map(Json)
     .map_err(|e| {
-        eprintln!("Error fetching in-stock inventory: {}", e);
+        eprintln!("Error fetching in-stock inventory: {e}");
         (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
     })
 }
@@ -66,7 +66,7 @@ pub async fn modify_inventory(
     .await
     .map(|_| StatusCode::OK)
     .map_err(|e| {
-        eprintln!("Error updating inventory: {}", e);
+        eprintln!("Error updating inventory: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })
 }
@@ -92,7 +92,7 @@ pub async fn update_inventory(
     .await
     .map(|_| StatusCode::OK)
     .map_err(|e| {
-        eprintln!("Error updating inventory: {}", e);
+        eprintln!("Error updating inventory: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })
 }
@@ -106,7 +106,7 @@ pub async fn delete_inventory_item(
         .execute(&state.db)
         .await
         .map_err(|e| {
-            eprintln!("Error deleting inventory item: {}", e);
+            eprintln!("Error deleting inventory item: {e}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
