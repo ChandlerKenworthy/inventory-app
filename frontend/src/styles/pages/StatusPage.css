@@ -10,4 +10,44 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.header-content h3 {
+    margin: 0;
+}
+
+.db-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.db-stat-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 4px;
+}
+
+.db-stat-item:last-child {
+    border-bottom: none;
+}
+
+.table-name {
+    font-weight: 600;
+    color: #444;
+    text-transform: capitalize;
+}
+
+.table-size {
+    font-family: ui-monospace, monospace;
+    color: #007bff;
 }

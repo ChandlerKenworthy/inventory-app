@@ -6,6 +6,12 @@ export type ConnectionStatus = "checking" | "connected" | "disconnected";
 // For handling error/success feedback to the user when dealing with forms and button clicks
 export type APIResponse = "success" | "error" | null;
 
+// For monitoring the status of the database tables on the StatusPage
+export type TableStatus = {
+    table_name: string;
+    size_mb: number;
+}
+
 // For handling the different states an order can be in and making code more readable (no magic strings)
 export enum OrderStatus {
     Pending = 0,
