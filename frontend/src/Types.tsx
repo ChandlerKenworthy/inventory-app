@@ -88,12 +88,7 @@ export type ProductItem = {
 }
 
 export type ProductItemWithLocationInfo = ProductItem & {
-  inventory: {
-    quantity: number
-    aisle: number
-    shelf: number
-    bin: number
-  }[]
+  inventory: LocationInformation[],
 }
 
 // For collating all the relevant customer information together
@@ -105,11 +100,7 @@ export type CustomerItem = {
 }
 
 // For displaying customer details on the SingleCustomerPage, including their order history
-export type CustomerWithOrderHistory = {
-  id: UUIDTypes,
-  first_name: string,
-  second_name: string,
-  email: string,
+export type CustomerWithOrderHistory = CustomerItem & {
   orders: {
     order_id: UUIDTypes,
     created_at: string,
@@ -118,10 +109,6 @@ export type CustomerWithOrderHistory = {
 }
 
 // For displaying customers in a table on the CustomersPage and showing how many orders they have made, this is more efficient than having to fetch all the orders for each customer just to count them
-export type CustomerWithOrderCount = {
-  id: UUIDTypes,
-  first_name: string,
-  second_name: string,
-  email: string,
+export type CustomerWithOrderCount = CustomerItem & {
   order_count: number
 }
