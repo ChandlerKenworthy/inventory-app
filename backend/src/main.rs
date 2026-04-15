@@ -129,8 +129,10 @@ async fn main() {
         .route("/api/orders/summary", get(api::order_routes::get_orders_summary)) // For summary of all orders
         .route("/api/orders/{id}", get(api::order_routes::get_order_details)) // For a single order
         .route("/api/orders", post(api::order_routes::create_order))
+        // For monitoring server health and database status
         .route("/api/health", get(api::status_routes::get_status))        
         .route("/api/query", post(api::special_routes::run_custom_query))
+        .route("/api/db_status", get(api::status_routes::get_db_status))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")

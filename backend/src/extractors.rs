@@ -26,7 +26,7 @@ where
         // 2. Validate the data
         value.validate().map_err(|errors| {
             // Return 422 for validation errors
-            (StatusCode::UNPROCESSABLE_ENTITY, format!("Validation failed: {}", errors)).into_response()
+            (StatusCode::UNPROCESSABLE_ENTITY, format!("Validation failed: {errors}")).into_response()
         })?;
 
         Ok(ValidatedJson(value))

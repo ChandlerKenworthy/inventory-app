@@ -52,7 +52,7 @@ export default function AddNewCustomerForm({ onSuccess }: CustomerFormProps) {
   };
 
   return (
-    <form className="customer-form" onSubmit={handleSubmit(onSubmit)}>
+    <form className="new-customer-form" onSubmit={handleSubmit(onSubmit)}>
       <TextInput
         label="first_name"
         description="First Name"

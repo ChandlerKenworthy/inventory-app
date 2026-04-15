@@ -25,12 +25,12 @@ pub async fn create_order(
     for item in &payload.items {
         // We can use a temporary struct or just get the row
         let row = sqlx::query(
-            r#"
+            r"
             SELECT p.name, p.price, i.quantity 
             FROM products p
             JOIN inventory i ON p.id = i.product_id
             WHERE p.id = ?
-            "#
+            "
         )
         .bind(item.product_id)
         .fetch_optional(&mut *tx)
@@ -73,10 +73,10 @@ pub async fn create_order(
 
     // Insert Parent Order
     sqlx::query(
-        r#"
+        r"
         INSERT INTO orders (id, customer_id, status, total_price, created_at)
         VALUES (?, ?, ?, ?, ?)
-        "#
+        "
     )
     .bind(order_id)          
     .bind(payload.customer_id)
@@ -90,10 +90,10 @@ pub async fn create_order(
     // Insert Line Items
     for (line_id, prod_id, qty, price) in items_to_insert {
         sqlx::query(
-            r#"
+            r"
             INSERT INTO order_items (id, order_id, product_id, quantity, unit_price) 
             VALUES (?, ?, ?, ?, ?)
-            "#
+            "
         )
         .bind(line_id) 
         .bind(order_id)
@@ -116,14 +116,14 @@ pub async fn get_orders(
 ) -> Result<Json<Vec<OrderResponse>>, (StatusCode, Json<String>)> {
     // Fetch flat rows using the FromRow struct we defined earlier
     let rows = sqlx::query_as::<_, OrderRow>(
-        r#"
+        r"
         SELECT 
             o.id, o.customer_id, o.status, o.created_at, o.total_price,
             oi.product_id, oi.quantity, oi.unit_price
         FROM orders o
         LEFT JOIN order_items oi ON o.id = oi.order_id
         ORDER BY o.created_at DESC
-        "#
+        "
     )
     .fetch_all(&state.db)
     .await
@@ -177,7 +177,7 @@ pub async fn get_orders_summary(
     .await
     .map(Json)
     .map_err(|e| {
-        eprintln!("Error fetching order summaries: {}", e);
+        eprintln!("Error fetching order summaries: {e}");
         (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
     })
 }
@@ -198,7 +198,7 @@ pub async fn get_order_details(
         ORDER BY o.created_at DESC
         "
     )
-    .bind(&order_id)
+    .bind(order_id)
     .fetch_all(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;

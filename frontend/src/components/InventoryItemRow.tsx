@@ -29,15 +29,23 @@ export default function InventoryItemRow(
         resolver: zodResolver(InventoryItemSchema),
         defaultValues: {
             product_id: item.product_id,
-            quantity: item.quantity,
-            aisle: item.aisle,
-            shelf: item.shelf,
-            bin: item.bin
+            quantity: item.location.quantity,
+            aisle: item.location.aisle,
+            shelf: item.location.shelf,
+            bin: item.location.bin
         },
     });
 
     const onSubmit = async (data: NewInventoryItemFormData) => {
-        const response = await inventoryService.modify(data);
+        const response = await inventoryService.modify({
+            product_id: data.product_id,
+            location: {
+                quantity: data.quantity,
+                aisle: data.aisle,
+                shelf: data.shelf,
+                bin: data.bin
+            }
+        });
         if (!response.success) {
             alert("Failed to update inventory item: " + response.message);
             return;
@@ -70,7 +78,7 @@ export default function InventoryItemRow(
                     {...register("quantity", { valueAsNumber: true })} 
                 />
             ) : (
-                <span>{item.quantity}</span>
+                <span>{item.location.quantity}</span>
             )}
 
             {isModifying ? (
@@ -81,7 +89,7 @@ export default function InventoryItemRow(
                     {...register("aisle", { valueAsNumber: true })} 
                 />
             ) : (
-                <span>{item.aisle}</span>
+                <span>{item.location.aisle}</span>
             )}
 
             {isModifying ? (
@@ -92,7 +100,7 @@ export default function InventoryItemRow(
                     {...register("shelf", { valueAsNumber: true })} 
                 />
             ) : (
-                <span>{item.shelf}</span>
+                <span>{item.location.shelf}</span>
             )}
 
             {isModifying ? (
@@ -103,7 +111,7 @@ export default function InventoryItemRow(
                     {...register("bin", { valueAsNumber: true })} 
                 />
             ) : (
-                <span>{item.bin}</span>
+                <span>{item.location.bin}</span>
             )}
 
             <div className="action-buttons">
