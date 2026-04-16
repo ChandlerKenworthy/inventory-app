@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
 import type { CustomerWithOrderCount } from "../Types";
 import Page from "../components/Page";
-import CustomerRow from "../components/CustomerRow";
+import { Link } from "react-router-dom";
 import { customerService } from "../services/customerService";
 import type { UUIDTypes } from "uuid";
 import AddNewCustomerForm from "../components/forms/AddNewCustomerForm";
 import "../styles/pages/CustomersPage.css";
 import { toast } from "react-hot-toast";
+import DataTable from "../components/DataTable";
+import { GoTrash } from "react-icons/go";
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<CustomerWithOrderCount[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchCustomers = async () => {
+    setLoading(true);
     toast.promise(
         customerService.get_all(),
         {
@@ -24,6 +28,7 @@ export default function CustomersPage() {
             error: (err) => `Error: ${err.message || "Could not load customers"}`,
         }
     );
+    setLoading(false);
   };
 
   const deleteCustomerHandler = async (customerId: UUIDTypes) => {
@@ -46,6 +51,37 @@ export default function CustomersPage() {
     fetchCustomers();
   }, []);
 
+  const columns = [
+    { 
+      key: "id", 
+      label: "Customer ID", 
+      render: (val: string) => (
+        <Link className="product-id-link" to={`/customers/${val}`}>
+          {val.slice(0, 8)}...
+        </Link>
+      )
+    },
+    { key: "first_name", label: "First Name" },
+    { key: "second_name", label: "Last Name" },
+    { key: "email", label: "Email" },
+    { key: "order_count", label: "# Orders" },
+    { 
+      key: "actions", 
+      label: "Delete",
+      width: "80px",
+      render: (_: any, record: CustomerWithOrderCount) => (
+        <button 
+          type="button"
+          onClick={() => deleteCustomerHandler(record.id)}
+          className="delete-customer-btn"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <GoTrash color="#ba1c1c" size={18} />
+        </button>
+      )
+    }
+  ];
+
   return (
     <Page title="Customers">
       <div className="customers-content-wrapper">
@@ -53,25 +89,12 @@ export default function CustomersPage() {
           <AddNewCustomerForm onSuccess={fetchCustomers} />
         </div>
         <div className="customer-table-wrapper">
-          <div className="customers-table">
-            <div className="customers-table-header">
-              <span>Customer ID</span>
-              <span>First Name</span>
-              <span>Last Name</span>
-              <span>Email</span>
-              <span># Orders</span>
-              <span>Delete</span>
-            </div>
-            <div className="customers-table-body">
-              {customers.map((customer: CustomerWithOrderCount) => (
-                  <CustomerRow 
-                    key={customer.id as string} 
-                    customer={customer}
-                    deleteCustomerHandler={deleteCustomerHandler}
-                  />
-              ))}
-            </div>
-          </div>
+          <DataTable
+            columns={columns}
+            data={customers}
+            isLoading={loading}
+            skeletonRows={8}
+          />
         </div>
       </div>
     </Page>

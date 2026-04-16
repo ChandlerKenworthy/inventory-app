@@ -1,0 +1,50 @@
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    background: white;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.custom-table th {
+    background-color: #f8f9fa;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #4a5568;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.custom-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #edf2f7;
+    color: #2d3748;
+}
+
+/* Skeleton Animation */
+.skeleton-cell {
+    height: 20px;
+    width: 80%;
+    background: #f0f0f0;
+    background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #a0aec0;
+}
