@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import Page from "../components/Page";
-import type { OrderSummaryResponse } from "../Types";
+import { OrderStatus, type OrderSummaryResponse } from "../Types";
 import { orderService } from "../services/orderService";
-import OrderItemRow from "../components/OrderItemRow";
 import "../styles/pages/OrdersPage.css";
 import { toast } from "react-hot-toast";
+import { Link } from "react-router-dom";
+import DataTable from "../components/DataTable";
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState<OrderSummaryResponse[]>([]);
@@ -27,29 +28,42 @@ export default function OrdersPage() {
         fetchOrders();
     }, []);
 
+    const columns = [
+        { key: "id", label: "Order ID", render: (val: string) => (
+            <Link to={`/orders/${val}`} className="order-id-link">
+                {val.slice(0, 8)}...
+            </Link>
+        ) 
+        },
+        { key: "customer_id", label: "Customer ID", render: (val: string) => (
+            <Link to={`/customers/${val}`} className="order-id-link">
+                {val.slice(0, 8)}...
+            </Link>
+        )
+        },
+        { key: "status", label: "Status", render: (val: number) => {
+            return (
+                <span className={`status-badge status-${OrderStatus[val].toLowerCase()}`}>
+                    {OrderStatus[val]}
+                </span>
+            )
+        }},
+        { key: "created_at", label: "Order Date", width: "15%"},
+        { key: "total_price", label: "Value (£)", render: (val: number) => `£${val.toFixed(2)}` },
+        { key: "number_of_items", label: "# Items" },
+    ];
+
     return (
         <Page title="Orders">
             <div className="content-wrapper">
                 {orders.length === 0 && <p>No orders found.</p>}
                 {orders.length > 0 && (
-                    <div className="orders-table">
-                        <div className="orders-table-header">
-                            <span>Order ID</span>
-                            <span>Customer ID</span>
-                            <span>Status</span>
-                            <span>Order Date</span>
-                            <span>Value (£)</span>
-                            <span># Items</span>
-                        </div>
-                        <div className="orders-table-body">
-                        {orders.map((order: OrderSummaryResponse) => (
-                            <OrderItemRow 
-                                key={order.id as string} 
-                                order={order} 
-                            />
-                        ))}
-                        </div>
-                    </div>
+                    <DataTable 
+                        columns={columns}
+                        data={orders}
+                        isLoading={false}
+                        skeletonRows={3}
+                    />
                 )}
             </div>
         </Page>

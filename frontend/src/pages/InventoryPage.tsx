@@ -1,12 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import type { InventoryItem } from "../Types";
-import InventoryItemRow from "../components/InventoryItemRow";
-import { GoFilter, GoSortAsc, GoSortDesc, GoSearch, GoXCircle } from "react-icons/go";
+import { GoFilter, GoSortAsc, GoSortDesc, GoSearch, GoXCircle, GoTrash, GoPencil } from "react-icons/go";
 import "../styles/pages/InventoryPage.css";
 import Page from "../components/Page";
 import type { UUIDTypes } from "uuid";
 import { inventoryService } from "../services/inventoryService";
 import toast from "react-hot-toast";
+import DataTable from "../components/DataTable";
+import { Link } from "react-router";
 
 type SortField = "product_id" | "quantity";
 type SortDirection = "asc" | "desc";
@@ -20,8 +21,10 @@ export default function InventoryPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [sort, setSort] = useState<SortState | null>(null);
   const [searchTerm, setSearchTerm] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchInventory = async () => {
+    setLoading(true);
     toast.promise(
       inventoryService.get_inventory(),
       {
@@ -34,6 +37,7 @@ export default function InventoryPage() {
         error: (err) => "Failed to load inventory: " + err.message,
       }
     );
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -96,6 +100,52 @@ export default function InventoryPage() {
     );
   }
 
+  const columns = [
+    { 
+      key: "product_id", 
+      label: "Product ID", 
+      render: (val: string) => (
+          <Link className="product-id-link" to={`/products/${val}`}>
+          {val.slice(0, 16)}...
+          </Link>
+      )
+    },
+    { key: "quantity", label: "Quantity", width: "25%", render: (_: any, record: InventoryItem) => record.location.quantity },
+    { key: "aisle", label: "Aisle", width: "10%", render: (_: any, record: InventoryItem) => record.location.aisle },
+    { key: "shelf", label: "Shelf", width: "10%", render: (_: any, record: InventoryItem) => record.location.shelf },
+    { key: "bin", label: "Bin", width: "10%", render: (_: any, record: InventoryItem) => record.location.bin },
+    {
+      key: "actions",
+      label: "Edit",
+      width: "10%",
+      render: (_: any, record: InventoryItem) => (
+        <button
+          type="button"
+          onClick={() => toast.error("Edit functionality not implemented yet")}
+          className="edit-inventory-btn"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <GoPencil color="#1c87ba" size={18} />
+        </button>
+      )
+    },
+    { 
+      key: "actions", 
+      label: "Delete",
+      width: "10%",
+      render: (_: any, record: InventoryItem) => (
+      <button 
+          type="button"
+          onClick={() => deleteItemHandler(record.product_id)}
+          className="delete-inventory-btn"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+      >
+          <GoTrash color="#ba1c1c" size={18} />
+      </button>
+      )
+      }
+  ];
+
   return (
     <Page title="Inventory">
       <div className="filters-wrapper">
@@ -148,24 +198,12 @@ export default function InventoryPage() {
         </div>
       </div>
       <div className="inventory-list">
-        <div className="inventory-table-header">
-          <span>Product ID</span>
-          <span>Quantity</span>
-          <span>Aisle</span>
-          <span>Shelf</span>
-          <span>Bin</span>
-          <span>Edit</span>
-          <span>Delete</span>
-        </div>
-        <div className="inventory-table-body">
-          {sortedInventory.map((item: InventoryItem) => (
-            <InventoryItemRow 
-              item={item} 
-              key={item.product_id as string} 
-              deleteItemHandler={deleteItemHandler}
-              onUpdateSuccess={fetchInventory} />
-          ))}
-        </div>
+        <DataTable
+          columns={columns}
+          data={sortedInventory}
+          isLoading={loading}
+          skeletonRows={5}
+        />
       </div> 
     </Page>
   );
