@@ -9,17 +9,11 @@ import NewOrderPage from "./pages/NewOrderPage";
 import CustomQueryPage from "./pages/CustomQueryPage";
 import SingleCustomerPage from "./pages/SingleCustomerPage";
 import SingleOrderPage from "./pages/SingleOrderPage";
-import Breadcrumbs from "./components/Breadcrumbs";
 import { createBrowserRouter, RouterProvider, Outlet, Link } from "react-router-dom";
 
 const RootLayout = () => (
   <div className="app-layout">
-    <nav className="top-nav">
-      <Breadcrumbs />
-    </nav>
-    <main className="content">
       <Outlet />
-    </main>
   </div>
 );
 
