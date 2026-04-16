@@ -1,19 +1,21 @@
 import { useState, useEffect, useMemo } from "react";
 import type { ProductItem } from "../Types";
 import "../styles/pages/ProductsPage.css"
-import { GoSearch, GoXCircle } from "react-icons/go";
+import { GoPlusCircle, GoSearch, GoTrash, GoXCircle } from "react-icons/go";
 import AddNewProductForm from "../components/forms/AddNewProductForm";
-import ProductItemRow from "../components/ProductItemRow";
 import Page from "../components/Page";
 import { productService } from "../services/productService";
 import type { UUIDTypes } from "uuid";
 import { inventoryService } from "../services/inventoryService";
 import toast from "react-hot-toast";
+import DataTable from "../components/DataTable";
+import { Link } from "react-router-dom";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<ProductItem[]>([]);
     const [productIDSearchTerm, setProductIDSearchTerm] = useState<string | null>("");
     const [productNameSearchTerm, setProductNameSearchTerm] = useState<string | null>("");
+    const [loading, setLoading] = useState<boolean>(false);
 
     const filteredProducts = useMemo(() => {
         const result = products.filter((product) => {
@@ -25,6 +27,7 @@ export default function ProductsPage() {
     }, [products, productIDSearchTerm, productNameSearchTerm]);
 
     const fetchProducts = async () => {
+        setLoading(true);
         toast.promise(
             productService.get_all(),
             {
@@ -37,6 +40,7 @@ export default function ProductsPage() {
                 error: (err) => "Failed to load products: " + err.message,
             }
         );
+        setLoading(false);
     }
 
     const deleteProductHandler = async (id: UUIDTypes) => {
@@ -71,6 +75,53 @@ export default function ProductsPage() {
     useEffect(() => {
         fetchProducts();
     }, []);
+
+    const columns = [
+        { 
+            key: "id", 
+            label: "Product ID", 
+            render: (val: string) => (
+                <Link className="product-id-link" to={`/products/${val}`}>
+                {val.slice(0, 8)}...
+                </Link>
+            )
+        },
+        { key: "name", label: "Name", width: "25%" },
+        { key: "weight", label: "Weight (kg)", width: "15%", render: (_: any, record: ProductItem) => record.dimensions.weight },
+        { key: "dimensions", label: "Dim. (W/H/D) (cm)", width: "20%", render: (value) => `${value.width} x ${value.height} x ${value.depth}` },
+        { key: "isFragile", label: "Fragile", width: "10%", render: (value) => value ? "Yes" : "No" },
+        { key: "price", label: "Price (£)", width: "15%", render: (value: number) => `£${value.toFixed(2)}` },
+        { 
+            key: "actions", 
+            label: "Add",
+            width: "80px",
+            render: (_: any, record: ProductItem) => (
+            <button 
+                type="button"
+                onClick={() => addToInventoryHandler(record.id)}
+                className="delete-customer-btn"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+                <GoPlusCircle color="#148de3" size={18} />
+            </button>
+            )
+        },
+        { 
+            key: "actions", 
+            label: "Delete",
+            width: "80px",
+            render: (_: any, record: ProductItem) => (
+            <button 
+                type="button"
+                onClick={() => deleteProductHandler(record.id)}
+                className="delete-customer-btn"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+                <GoTrash color="#ba1c1c" size={18} />
+            </button>
+            )
+        }
+    ];
 
     return (
         <Page title="Products Catalogue">
@@ -111,26 +162,12 @@ export default function ProductsPage() {
                             </button>
                         </div>
                     </div>
-                    <div className="products-table-header">
-                        <span>Product ID</span>
-                        <span>Name</span>
-                        <span>Weight (kg)</span>
-                        <span>Dim. (W/H/D) (cm)</span>
-                        <span>Is Fragile</span>
-                        <span>Price (£)</span>
-                        <span>Add</span>
-                        <span>Delete</span>
-                    </div>
-                    <div className="products-table-body">
-                    {filteredProducts.map((product: ProductItem) => (
-                        <ProductItemRow 
-                            key={product.id as string} 
-                            product={product} 
-                            deleteProductHandler={deleteProductHandler}
-                            addToInventoryHandler={addToInventoryHandler}
-                        />
-                    ))}
-                    </div>
+                    <DataTable 
+                        columns={columns}
+                        data={filteredProducts}
+                        isLoading={loading}
+                        skeletonRows={8}
+                    />
                 </div>  
             </div>
         </Page>
