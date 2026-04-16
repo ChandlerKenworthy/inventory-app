@@ -1,4 +1,3 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import InventoryPage from "./pages/InventoryPage";
 import HomePage from "./pages/HomePage";
 import CustomersPage from "./pages/CustomersPage";
@@ -10,25 +9,58 @@ import NewOrderPage from "./pages/NewOrderPage";
 import CustomQueryPage from "./pages/CustomQueryPage";
 import SingleCustomerPage from "./pages/SingleCustomerPage";
 import SingleOrderPage from "./pages/SingleOrderPage";
+import { createBrowserRouter, RouterProvider, Outlet, Link } from "react-router-dom";
+
+const RootLayout = () => (
+  <div className="app-layout">
+      <Outlet />
+  </div>
+);
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: "inventory",
+        element: <InventoryPage />,
+        handle: { crumb: () => "Inventory" }
+      },
+      { 
+        path: "customers", 
+        handle: { crumb: () => <Link to="/customers">Customers</Link> },
+        children: [
+          { index: true, element: <CustomersPage /> },
+          { path: ":id", element: <SingleCustomerPage />, handle: { crumb: () => "Customer Details" } }
+        ]
+      },
+      { 
+        path: "products", 
+        handle: { crumb: () => <Link to="/products">Products</Link> },
+        children: [
+          { index: true, element: <ProductsPage /> },
+          { path: ":id", element: <SingleProductPage />, handle: { crumb: () => "Product Details" } }
+        ]
+      },
+      { 
+        path: "orders", 
+        handle: { crumb: () => <Link to="/orders">Orders</Link> },
+        children: [
+          { index: true, element: <OrdersPage /> },
+          { path: "new", element: <NewOrderPage />, handle: { crumb: () => "New Order" } },
+          { path: ":id", element: <SingleOrderPage />, handle: { crumb: () => "Order Details" } }
+        ]
+      },
+      { path: "query", element: <CustomQueryPage />, handle: { crumb: () => "Query" } },
+      { path: "status", element: <StatusPage />, handle: { crumb: () => "System Status" } },
+    ]
+  }
+]);
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/inventory" element={<InventoryPage />} />
-        <Route path="/customers" element={<CustomersPage />} />
-        <Route path="/customers/:id" element={<SingleCustomerPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/products/:id" element={<SingleProductPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/orders/new" element={<NewOrderPage />} />
-        <Route path="/orders/:id" element={<SingleOrderPage />} />
-        <Route path="/query" element={<CustomQueryPage />} />
-        <Route path="/status" element={<StatusPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App

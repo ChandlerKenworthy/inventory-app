@@ -1,46 +1,63 @@
+:root {
+    --nav-bg: #F3F5F7;
+    --text-main: #181818;
+    --text-muted: #6c757d;
+    --accent: #2272bd;
+    --active-gray: #7f7f7f;
+}
+
 .nav-wrapper {
-    background: #F3F5F7;
+    background: var(--nav-bg);
     height: 100vh;
+    width: 240px; /* Standard sidebar width */
 }
 
 .nav-menu {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
     padding: 15px 20px;
+    gap: 4px; /* Space between menu items */
 }
 
-.nav-menu .nav-item {
+/* Base NavItem (The NavLink itself) */
+.nav-item {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
+    gap: 12px;
     padding: 10px 0;
-}
-
-.nav-menu .nav-item.nav-item--active {
-    color: rgb(127, 127, 127);
-}
-
-.nav-menu a {
     text-decoration: none;
-    color: #181818;
+    color: var(--text-main);
     font-size: 18px;
-    margin: 0;
-    transition: color 0.3s ease;
+    transition: all 0.2s ease;
 }
 
-.nav-menu .nav-item:hover {
-    color: rgb(34, 114, 189);
+.nav-item:hover {
+    color: var(--accent);
 }
 
-.nav-menu .nav-item.nav-item--active:hover {
-    color: rgb(127, 127, 127);
+/* Active State */
+.nav-item--active {
+    color: var(--active-gray) !important;
     cursor: default;
 }
 
-.nav-menu a:hover {
-    color: rgb(34, 114, 189);
+/* Submenu Layout */
+.nav-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-submenu {
+    display: flex;
+    flex-direction: column;
+    margin-left: 1.2rem;
+    padding-left: 10px;
+    border-left: 1px solid #e9ecef;
+}
+
+/* Submenu Specific Items */
+.nav-item--sub {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    padding: 6px 0;
 }
