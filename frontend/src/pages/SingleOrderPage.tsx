@@ -1,14 +1,14 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Page from "../components/Page";
 import { useEffect, useState } from "react";
-import { OrderStatus, type OrderItemResponse, type OrderResponse } from "../Types";
+import { OrderStatus, type OrderResponse } from "../Types";
 import { orderService } from "../services/orderService";
 import type { UUIDTypes } from "uuid";
 import "../styles/pages/SingleOrderPage.css";
-import OrderDetailsRow from "../components/OrderDetailsRow";
 import Barcode from "react-barcode";
 import toast from "react-hot-toast";
 import { GoCheckCircle } from "react-icons/go";
+import DataTable from "../components/DataTable";
 
 export default function SingleOrderPage() {
     const { id } = useParams<{ id: string }>();
@@ -29,6 +29,26 @@ export default function SingleOrderPage() {
             }
         );
     };
+
+    const updateStatus = async () => {
+        toast.promise(
+            orderService.set_order_status(id as UUIDTypes, status as OrderStatus),
+            {
+                loading: "Updating order status...",
+                success: () => {
+                    fetchOrder(); // Refresh order details after status update
+                    return "Order status updated successfully!";
+                },
+                error: (err) => `Error updating order status: ${err}`,
+            }
+        );
+    }
+
+    const columns = [
+        { key: "product_id", label: "Product ID", render: (id: string) => <Link to={`/products/${id}`} className="order-id-link">{id.slice(0, 8)}...</Link> },
+        { key: "quantity", label: "Quantity" },
+        { key: "unit_price", label: "Unit Price (£)", render: (value: number) => `£${value.toFixed(2)}` },
+    ];
 
     useEffect(() => {
         fetchOrder();
@@ -57,19 +77,7 @@ export default function SingleOrderPage() {
                             ))}
                         <button
                             className="confirm-status-button"
-                            onClick={() => {
-                                toast.promise(
-                                    orderService.set_order_status(id as UUIDTypes, status as OrderStatus),
-                                    {
-                                        loading: "Updating order status...",
-                                        success: () => {
-                                            fetchOrder(); // Refresh order details after status update
-                                            return "Order status updated successfully!";
-                                        },
-                                        error: (err) => `Error updating order status: ${err}`,
-                                    }
-                                )
-                            }}
+                            onClick={updateStatus}
                         >
                             <GoCheckCircle size={18} color="#2bbe2e" />
                         </button>
@@ -80,17 +88,14 @@ export default function SingleOrderPage() {
             </div>
             <h3>Items</h3>
             <div className="order-details-table">
-                <div className="order-details-table-header">
-                    <span>Product ID</span>
-                    <span>Quantity</span>
-                    <span>Unit Price (£)</span>
-                </div>
-                {order?.items.map((item: OrderItemResponse) => (
-                    <OrderDetailsRow
-                        key={item.product_id}
-                        item={item}
+                {order && (
+                    <DataTable 
+                        columns={columns}
+                        data={order.items}
+                        isLoading={!order}
+                        skeletonRows={2}
                     />
-                ))}
+                )}
             </div>
         </Page>
     )
