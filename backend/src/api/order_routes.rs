@@ -1,6 +1,6 @@
 use crate::state::AppState;
 use std::sync::Arc;
-use crate::models::order::{CreateOrderPayload, OrderResponse, OrderSummaryResponse, OrderItemResponse, OrderRow};
+use crate::models::order::{CreateOrderPayload, OrderResponse, OrderSummaryResponse, OrderItemResponse, OrderRow, OrderStatusUpdate};
 use axum::{Json, extract::State, http::StatusCode, extract::Path};
 use sqlx::{Row};
 use uuid::Uuid;
@@ -180,6 +180,31 @@ pub async fn get_orders_summary(
         eprintln!("Error fetching order summaries: {e}");
         (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))
     })
+}
+
+pub async fn update_order_status(
+    State(state): State<Arc<AppState>>,
+    Path(order_id): Path<Uuid>,
+    Json(payload): Json<OrderStatusUpdate>
+) -> Result<Json<String>, (StatusCode, Json<String>)> {
+    let result = sqlx::query(
+        r"
+        UPDATE orders 
+        SET status = ?
+        WHERE id = ?
+        "
+    )
+    .bind(payload.status)
+    .bind(order_id)
+    .execute(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
+
+    if result.rows_affected() == 0 {
+        return Err((StatusCode::NOT_FOUND, Json("Order not found".into())));
+    }
+
+    Ok(Json("Order status updated successfully".into()))
 }
 
 pub async fn get_order_details(

@@ -34,3 +34,24 @@
   color: #6b7280;
   text-align: center;
 }
+
+.order-details-state-pill {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.order-details-state-pill.not-active {
+  background-color: #8f8f8f;
+}
+
+.order-details-status-paragraph {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.confirm-status-button {
+  margin: 0;
+  padding: 5px;
+  border-radius: 50%;
+}

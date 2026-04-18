@@ -2,6 +2,7 @@ import type { UUIDTypes } from "uuid";
 import type { NewOrderItemFormData } from "../schema/OrderItemSchema";
 import type { OrderResponse, OrderSummaryResponse, ServiceResponse } from "../Types";
 import { ORDERS_ENDPOINT } from "./constants";
+import { OrderStatus } from "../Types";
 
 export const orderService = {
     async get_order(id: UUIDTypes): Promise<ServiceResponse<OrderResponse>> {
@@ -86,6 +87,35 @@ export const orderService = {
                 success: true,
                 message: 'Order added to database successfully.',
                 data: rawData
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: "Network error: " + error,
+            }
+        }
+    },
+
+    async set_order_status(id: UUIDTypes, status: OrderStatus): Promise<ServiceResponse<null>> {
+        try {
+            const response = await fetch(`${ORDERS_ENDPOINT}/${id}/status`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ status }),
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                return {
+                    success: false,
+                    message: data.error || 'Failed to update order status.'
+                };
+            }
+            return {
+                success: true,
+                message: 'Order status updated successfully.',
+                data: null
             };
         } catch (error) {
             return {

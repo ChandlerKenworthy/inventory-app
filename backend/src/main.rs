@@ -6,7 +6,7 @@
 #![allow(clippy::missing_docs_in_private_items)] // Allow some pedantic lints
 #![allow(clippy::too_many_arguments)] // Allow some pedantic lints
 
-use axum::{Router, routing::get, routing::post, routing::delete};
+use axum::{Router, routing::get, routing::post, routing::delete, routing::patch};
 use std::{sync::Arc};
 use sqlx::sqlite::SqlitePool;
 
@@ -129,6 +129,7 @@ async fn main() {
         .route("/api/orders/summary", get(api::order_routes::get_orders_summary)) // For summary of all orders
         .route("/api/orders/{id}", get(api::order_routes::get_order_details)) // For a single order
         .route("/api/orders", post(api::order_routes::create_order))
+        .route("/api/orders/{id}/status", patch(api::order_routes::update_order_status))
         // For monitoring server health and database status
         .route("/api/health", get(api::status_routes::get_status))        
         .route("/api/query", post(api::special_routes::run_custom_query))

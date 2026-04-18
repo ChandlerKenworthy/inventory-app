@@ -3,6 +3,11 @@ use serde::{Serialize, Deserialize};
 use validator::Validate;
 use uuid::Uuid;
 
+#[derive(serde::Deserialize)]
+pub struct OrderStatusUpdate {
+    pub status: i32,
+}
+
 #[derive(Deserialize, Validate, sqlx::FromRow)] // Used when making new orders
 pub struct CreateOrderPayload {
     pub customer_id: Uuid,
