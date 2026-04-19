@@ -5,6 +5,7 @@ import { GoPlus, GoTrash } from "react-icons/go";
 import type { CustomerItem, OrderItemRecord } from "../../Types";
 import { orderService } from "../../services/orderService";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface AddNewOrderProps {
     onSuccess: () => void;
@@ -28,22 +29,28 @@ export default function AddNewOrderForm({ onSuccess, products, customers }: AddN
             items: [{ product_id: "uuidv4-placeholder", quantity: 1 }] 
         }
     });
-
+    const queryClient = useQueryClient();
     const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
-    const onSubmit = async (data: NewOrderItemFormData) => {
-        toast.promise(
-            orderService.send_order(data),
-            {
-                loading: "Placing order...",
-                success: (result) => {
-                    if (!result.success) throw new Error(result.message);
-                    onSuccess(); // call the onSuccess callback to trigger any parent updates
-                    return "Order placed successfully";
-                },
-                error: (err) => "Failed to place order: " + err.message,
-            }
-        );
+    const { mutate: placeOrder } = useMutation({
+        mutationFn: (data: NewOrderItemFormData) => orderService.send_order(data),
+        onMutate: () => {
+            // Show a loading toast that can be dismissed later
+            toast.loading("Placing order...", { id: "order-toast" });
+        },
+        onSuccess: () => {
+            // This forces the OrdersPage to re-fetch the latest data
+            queryClient.invalidateQueries({ queryKey: ["orders_summary"] });
+            toast.success("Order placed successfully", { id: "order-toast" });
+            onSuccess(); 
+        },
+        onError: (err: Error) => {
+            toast.error(`Failed to place order: ${err.message}`, { id: "order-toast" });
+        },
+    });
+
+    const onSubmit = (data: NewOrderItemFormData) => {
+        placeOrder(data);
     };
 
     return (

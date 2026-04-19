@@ -1,127 +1,58 @@
 import type { UUIDTypes } from "uuid";
 import type { NewOrderItemFormData } from "../schema/OrderItemSchema";
-import type { OrderResponse, OrderSummaryResponse, ServiceResponse } from "../Types";
+import type { OrderResponse, OrderSummaryResponse } from "../Types";
 import { ORDERS_ENDPOINT } from "./constants";
 import { OrderStatus } from "../Types";
 
 export const orderService = {
-    async get_order(id: UUIDTypes): Promise<ServiceResponse<OrderResponse>> {
-        try {
-            const response = await fetch(`${ORDERS_ENDPOINT}/${id}`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'},
-            });
-            const data = await response.json();
+    async get_order(id: UUIDTypes): Promise<OrderResponse> {
+        const response = await fetch(`${ORDERS_ENDPOINT}/${id}`);
 
-            if (!response.ok) {
-                return {
-                    success: false,
-                    message: "Failed to fetch order.",
-                }
-            }
-            return {
-                success: true,
-                message: "Order fetched successfully",
-                data: data
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: "Network error: " + error,
-                data: undefined
-            };
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to fetch order");
         }
+
+        return response.json();
     },
 
-    async get_orders_summary(): Promise<ServiceResponse<OrderSummaryResponse[]>> {
-        try {
-            const response = await fetch(`${ORDERS_ENDPOINT}/summary`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'},
-            });
-            const data = await response.json();
+    async get_orders_summary(): Promise<OrderSummaryResponse[]> {
+        const response = await fetch(`${ORDERS_ENDPOINT}/summary`);
 
-            if (!response.ok) {
-                return {
-                    success: false,
-                    message: "Failed to fetch order summaries.",
-                    data: undefined
-                }
-            }
-            return {
-                success: true,
-                message: "Order summaries fetched successfully",
-                data: data
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: "Network error: " + error,
-                data: undefined
-            };
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to fetch order summaries");
         }
+
+        return response.json();
     },
 
-    async send_order(data: NewOrderItemFormData): Promise<ServiceResponse<null>> {
-        try {
-            const response = await fetch(ORDERS_ENDPOINT, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data),
-            });
+    async send_order(data: NewOrderItemFormData): Promise<void> {
+        const response = await fetch(ORDERS_ENDPOINT, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+        });
 
-            const contentType = response.headers.get("content-type");
-            const rawData = contentType?.includes("application/json") 
-                ? await response.json() 
-                : await response.text();
-
-            if (!response.ok) {
-                const errorMessage = typeof rawData === 'object' ? rawData.error : rawData;
-                return {
-                    success: false,
-                    message: errorMessage || 'Failed to commit customer order.'
-                };
-            }
-
-            return {
-                success: true,
-                message: 'Order added to database successfully.',
-                data: rawData
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: "Network error: " + error,
-            }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to commit customer order.');
         }
+
+        return response.json();
     },
 
-    async set_order_status(id: UUIDTypes, status: OrderStatus): Promise<ServiceResponse<null>> {
-        try {
-            const response = await fetch(`${ORDERS_ENDPOINT}/${id}/status`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ status }),
-            });
+    async set_order_status(id: UUIDTypes, status: OrderStatus): Promise<void> {
+        const response = await fetch(`${ORDERS_ENDPOINT}/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status }),
+        });
 
+        if (!response.ok) {
             const data = await response.json();
-            
-            if (!response.ok) {
-                return {
-                    success: false,
-                    message: data.error || 'Failed to update order status.'
-                };
-            }
-            return {
-                success: true,
-                message: 'Order status updated successfully.',
-                data: null
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: "Network error: " + error,
-            }
+            // Throwing ensures TanStack Query enters the 'error' state
+            throw new Error(data.error || 'Failed to update order status.');
         }
     }
 };
